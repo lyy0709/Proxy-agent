@@ -10333,6 +10333,24 @@ testChainConnection() {
         firstHopIP=$(jq -r '.downstream_hops[0].ip // empty' /etc/Proxy-agent/sing-box/conf/chain_relay_info.json 2>/dev/null)
         firstHopPort=$(jq -r '.downstream_hops[0].port // empty' /etc/Proxy-agent/sing-box/conf/chain_relay_info.json 2>/dev/null)
 
+    elif [[ -f "/etc/Proxy-agent/sing-box/conf/external_entry_info.json" ]]; then
+        # 外部节点作为出口的配置
+        role="external"
+        local nodeId nodeName
+        nodeId=$(jq -r '.external_node_id // empty' /etc/Proxy-agent/sing-box/conf/external_entry_info.json 2>/dev/null)
+        nodeName=$(jq -r '.external_node_name // empty' /etc/Proxy-agent/sing-box/conf/external_entry_info.json 2>/dev/null)
+
+        if [[ -n "${nodeId}" ]]; then
+            # 从外部节点库获取服务器信息
+            local nodeInfo
+            nodeInfo=$(getExternalNodeById "${nodeId}")
+            if [[ -n "${nodeInfo}" ]]; then
+                firstHopIP=$(echo "${nodeInfo}" | jq -r '.server // empty')
+                firstHopPort=$(echo "${nodeInfo}" | jq -r '.server_port // empty')
+                echoContent yellow "外部节点: ${nodeName}"
+            fi
+        fi
+
     elif [[ -f "/etc/Proxy-agent/sing-box/conf/chain_exit_info.json" ]]; then
         role="exit"
         echoContent yellow "$(t CHAIN_TEST_EXIT_NOTICE)"
