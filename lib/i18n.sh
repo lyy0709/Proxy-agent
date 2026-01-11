@@ -8,8 +8,15 @@
 #   V2RAY_LANG=zh bash install.sh    # Chinese (default)
 # =============================================================================
 
-# 语言文件目录
-_I18N_DIR="${_SCRIPT_DIR:-$(dirname "${BASH_SOURCE[0]}")/..}/shell/lang"
+# 语言文件目录 - 按优先级检查多个可能的位置
+_I18N_DIR=""
+if [[ -n "${_SCRIPT_DIR}" && -d "${_SCRIPT_DIR}/shell/lang" ]]; then
+    _I18N_DIR="${_SCRIPT_DIR}/shell/lang"
+elif [[ -d "/etc/Proxy-agent/shell/lang" ]]; then
+    _I18N_DIR="/etc/Proxy-agent/shell/lang"
+else
+    _I18N_DIR="$(dirname "${BASH_SOURCE[0]}")/../shell/lang"
+fi
 
 # =============================================================================
 # 语言检测 - Language Detection
