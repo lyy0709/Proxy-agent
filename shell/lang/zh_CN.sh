@@ -833,6 +833,7 @@ MSG_RECOMMENDED="推荐"
 # =============================================================================
 MSG_EXT_MENU_TITLE="外部节点管理"
 MSG_EXT_MENU_OPTIONS="操作选项"
+MSG_EXT_NODE="节点"
 MSG_EXT_NODE_LIST="已配置的外部节点"
 MSG_EXT_NO_NODES="暂无外部节点"
 MSG_EXT_ADD_BY_LINK="通过链接添加节点"

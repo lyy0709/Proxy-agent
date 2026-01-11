@@ -833,6 +833,7 @@ MSG_RECOMMENDED="Recommended"
 # =============================================================================
 MSG_EXT_MENU_TITLE="External Node Management"
 MSG_EXT_MENU_OPTIONS="Options"
+MSG_EXT_NODE="Node"
 MSG_EXT_NODE_LIST="Configured External Nodes"
 MSG_EXT_NO_NODES="No external nodes configured"
 MSG_EXT_ADD_BY_LINK="Add Node by Link"

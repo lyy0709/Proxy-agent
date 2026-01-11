@@ -20,7 +20,7 @@ fi
 
 # =============================================================================
 # 语言检测 - Language Detection
-# 优先级: V2RAY_LANG > 持久配置文件 > LANGUAGE > LANG > 默认中文
+# 优先级: V2RAY_LANG > 持久配置文件 > 默认中文
 # =============================================================================
 _detect_language() {
     local lang=""
@@ -31,10 +31,10 @@ _detect_language() {
         lang="${V2RAY_LANG}"
     # 优先级2: 持久化语言配置文件
     elif [[ -f "${langFile}" ]]; then
-        lang=$(cat "${langFile}" 2>/dev/null)
-    # 优先级3: 系统环境变量
+        lang=$(tr -d '[:space:]' <"${langFile}" 2>/dev/null)
     else
-        lang="${LANGUAGE:-${LANG:-zh_CN}}"
+        # 默认始终使用中文，避免被系统 LANG/LANGUAGE 影响
+        lang="zh_CN"
     fi
 
     case "${lang}" in

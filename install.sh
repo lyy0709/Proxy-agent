@@ -218,6 +218,193 @@ if ! type t &>/dev/null; then
     MSG_INSTALL_CHECKING="检查、安装更新【新机器会很慢，如长时间无反应，请手动停止后重新执行】"
     MSG_INSTALL_TOOL="安装 %s"
 
+    # 补齐菜单/链式代理/外部节点在“单文件运行模式”下的翻译
+    MSG_MENU_SCRIPT_VERSION="脚本版本管理"
+    MSG_ALL_UNMATCHED="所有未匹配流量"
+    MSG_BACK="返回"
+    MSG_CANCEL="取消"
+    MSG_CHAIN_ADD_BY_CODE="通过配置码添加 (自建节点)"
+    MSG_CHAIN_ADD_BY_EXTERNAL="通过外部节点添加 (拼车节点)"
+    MSG_CHAIN_ADD_FAILED="链路添加失败或已取消"
+    MSG_CHAIN_ADD_NUMBER="添加链路"
+    MSG_CHAIN_ADD_TYPE_SELECT="选择添加方式"
+    MSG_CHAIN_ADDED="链路添加成功"
+    MSG_CHAIN_ADVANCED_MODIFY_LIMIT="修改IP限制"
+    MSG_CHAIN_ADVANCED_MODIFY_PORT="修改监听端口"
+    MSG_CHAIN_ADVANCED_REGENERATE="重新生成配置码"
+    MSG_CHAIN_ADVANCED_TITLE="链式代理高级设置"
+    MSG_CHAIN_ADVANCED_VIEW_CONFIG="查看当前配置"
+    MSG_CHAIN_CANNOT_GET_IP="无法自动获取公网IP，请手动输入"
+    MSG_CHAIN_CODE="配置码"
+    MSG_CHAIN_CONTINUE_ADD="是否继续添加链路"
+    MSG_CHAIN_CUSTOM_DOMAIN_HINT="请输入域名 (逗号分隔，如: example.com,test.org)"
+    MSG_CHAIN_EXISTING_CONFIG="检测到已存在链式代理配置"
+    MSG_CHAIN_EXIT_IP="出口节点 IP"
+    MSG_CHAIN_EXIT_KEY="密钥"
+    MSG_CHAIN_EXIT_METHOD="加密方式"
+    MSG_CHAIN_EXIT_PORT="出口节点端口"
+    MSG_CHAIN_INPUT_PORT="请输入链式代理端口"
+    MSG_CHAIN_INPUT_PORT_RANDOM="回车使用随机端口"
+    MSG_CHAIN_LIMIT_ALLOW="请输入允许连接的入口节点 IP"
+    MSG_CHAIN_LIMIT_IP_NO="否 - 允许任何 IP 连接"
+    MSG_CHAIN_LIMIT_IP_QUESTION="是否限制只允许特定IP连接？"
+    MSG_CHAIN_LIMIT_IP_YES="是 - 只允许指定 IP 连接（更安全）"
+    MSG_CHAIN_MENU_ADVANCED="高级设置"
+    MSG_CHAIN_MENU_DESC_1="# 链式代理说明"
+    MSG_CHAIN_MENU_DESC_2="# 至少需要两台服务器，一台入口节点，一台出口节点"
+    MSG_CHAIN_MENU_DESC_3="# 流量路径: 用户 → 入口节点 → [中继节点...] → 出口节点 → 互联网"
+    MSG_CHAIN_MENU_DESC_4="# 用户连接入口节点，实际出口 IP 为出口节点"
+    MSG_CHAIN_MENU_STATUS="查看链路状态"
+    MSG_CHAIN_MENU_TEST="测试链路连通性"
+    MSG_CHAIN_MENU_TITLE="功能: 链式代理管理"
+    MSG_CHAIN_MENU_UNINSTALL="卸载链式代理"
+    MSG_CHAIN_MENU_WIZARD="快速配置向导"
+    MSG_CHAIN_NAME_EXISTS="链路名称已存在"
+    MSG_CHAIN_NAME_HINT="请为此链路设置标识名称 (仅限英文字母、数字、下划线)"
+    MSG_CHAIN_NAME_INVALID="名称格式无效，仅允许英文字母、数字、下划线"
+    MSG_CHAIN_NAME_PROMPT="链路名称"
+    MSG_CHAIN_NETWORK_DUAL="双栈监听 (IPv4 + IPv6)"
+    MSG_CHAIN_NETWORK_IPV4="仅监听 IPv4"
+    MSG_CHAIN_NETWORK_IPV6="仅监听 IPv6"
+    MSG_CHAIN_NETWORK_STRATEGY="网络策略选择"
+    MSG_CHAIN_NOT_CONFIGURED="未配置"
+    MSG_CHAIN_NOT_RUNNING="未运行"
+    MSG_CHAIN_PASTE_CODE="请粘贴出口或中继节点的配置码"
+    MSG_CHAIN_PASTE_DOWNSTREAM="请粘贴下游节点（出口或其他中继）的配置码"
+    MSG_CHAIN_PRESET_AI="AI服务 (OpenAI/Bing/...)"
+    MSG_CHAIN_PRESET_APPLE="苹果服务"
+    MSG_CHAIN_PRESET_DEV="开发者 (GitHub/GitLab/...)"
+    MSG_CHAIN_PRESET_GAMING="游戏 (Steam/Epic/...)"
+    MSG_CHAIN_PRESET_GOOGLE="谷歌服务"
+    MSG_CHAIN_PRESET_MICROSOFT="微软服务"
+    MSG_CHAIN_PRESET_SOCIAL="社交媒体 (Telegram/Twitter/...)"
+    MSG_CHAIN_PRESET_STREAMING="流媒体 (Netflix/Disney+/YouTube/...)"
+    MSG_CHAIN_PUBLIC_IP="公网 IP"
+    MSG_CHAIN_ROLE_EXIT="出口节点 (Exit)"
+    MSG_CHAIN_ROLE_RELAY="中继节点 (Relay)"
+    MSG_CHAIN_RULE_CUSTOM="自定义域名"
+    MSG_CHAIN_RULE_DEFAULT="设为默认链路 (接收所有未匹配规则的流量)"
+    MSG_CHAIN_RULE_LATER="稍后统一配置"
+    MSG_CHAIN_RULE_PRESET="使用预设规则"
+    MSG_CHAIN_RULES_HINT="选择此链路的分流规则"
+    MSG_CHAIN_RUNNING="运行中"
+    MSG_CHAIN_SETUP_ENTRY_CODE_TITLE="配置入口节点 (Entry) - 配置码模式"
+    MSG_CHAIN_SETUP_ENTRY_MANUAL_TITLE="配置入口节点 (Entry) - 手动模式"
+    MSG_CHAIN_SETUP_EXIT_TITLE="配置出口节点 (Exit)"
+    MSG_CHAIN_SETUP_RELAY_DESC_1="# 工作原理:"
+    MSG_CHAIN_SETUP_RELAY_DESC_2="# 1. 接收来自上游节点（入口或其他中继）的流量"
+    MSG_CHAIN_SETUP_RELAY_DESC_3="# 2. 将流量转发到下游节点（出口或其他中继）"
+    MSG_CHAIN_SETUP_RELAY_TITLE="配置中继节点 (Relay)"
+    MSG_CHAIN_STATUS_TITLE="链式代理状态"
+    MSG_CHAIN_STEP_1_3="步骤 1/3"
+    MSG_CHAIN_STEP_2_3="步骤 2/3"
+    MSG_CHAIN_STEP_IMPORT="导入下游节点配置码"
+    MSG_CHAIN_STEP_NAME="步骤: 命名此链路"
+    MSG_CHAIN_STEP_PORT="配置本机监听端口"
+    MSG_CHAIN_STEP_RULES="步骤: 设置分流规则"
+    MSG_CHAIN_TEST_EXIT_HINT="请在入口节点测试连通性"
+    MSG_CHAIN_TEST_EXIT_NOTICE="当前为出口节点，无需测试链路"
+    MSG_CHAIN_TEST_FAILED="测试失败"
+    MSG_CHAIN_TEST_NETWORK="测试出口节点网络..."
+    MSG_CHAIN_TEST_SUCCESS="测试成功"
+    MSG_CHAIN_TEST_TITLE="测试链路连通性"
+    MSG_CHAIN_UNINSTALL_CONFIRM="确认卸载链式代理？"
+    MSG_CHAIN_UNINSTALL_MULTI="检测到多链路分流模式，共 %s 条链路"
+    MSG_CHAIN_UNINSTALL_SINGLE="检测到单链路模式"
+    MSG_CHAIN_UNINSTALL_TITLE="卸载链式代理"
+    MSG_CHAIN_WIZARD_ENTRY_CODE="入口节点 (Entry) - 配置码模式"
+    MSG_CHAIN_WIZARD_ENTRY_CODE_DESC="通过出口/中继节点生成的配置码自动配置"
+    MSG_CHAIN_WIZARD_ENTRY_MANUAL="手动配置入口节点"
+    MSG_CHAIN_WIZARD_ENTRY_MANUAL_DESC="手动输入出口节点信息"
+    MSG_CHAIN_WIZARD_ENTRY_MULTI="入口节点 (多链路分流模式)"
+    MSG_CHAIN_WIZARD_ENTRY_MULTI_DESC="多条链路分流，不同流量走不同出口"
+    MSG_CHAIN_WIZARD_EXIT="出口节点 (Exit)"
+    MSG_CHAIN_WIZARD_EXIT_DESC="最终出口服务器，流量从此节点访问互联网"
+    MSG_CHAIN_WIZARD_RELAY="中继节点 (Relay)"
+    MSG_CHAIN_WIZARD_RELAY_DESC="转发流量到下游节点，可多级串联"
+    MSG_CHAIN_WIZARD_TITLE="链式代理配置向导"
+    MSG_CONTINUE="继续"
+    MSG_CUSTOM_DOMAIN="自定义域名"
+    MSG_DEFAULT="默认"
+    MSG_DEFAULT_CHAIN="默认链路"
+    MSG_DISABLED="已禁用"
+    MSG_DOMAIN="域名"
+    MSG_ENTRY_NODE="入口节点"
+    MSG_ERR_IP_GET="无法获取 IP"
+    MSG_ERR_NOT_EMPTY="%s 不可为空"
+    MSG_EXT_ADD_BY_LINK="通过链接添加节点"
+    MSG_EXT_ADD_MANUAL="手动添加节点"
+    MSG_EXT_ADD_NODE_FIRST="请先添加外部节点"
+    MSG_EXT_ADD_NODE_HINT="请先在外部节点管理中添加节点"
+    MSG_EXT_ADD_SOCKS="添加 SOCKS5 节点"
+    MSG_EXT_ADD_SS="添加 Shadowsocks 节点"
+    MSG_EXT_ADD_TROJAN="添加 Trojan 节点"
+    MSG_EXT_CONFIG_FAILED="配置生成失败"
+    MSG_EXT_CONFIG_SUCCESS="配置完成"
+    MSG_EXT_CONFIGURING="正在配置"
+    MSG_EXT_CONFIRM_ADD="确认添加"
+    MSG_EXT_CONFIRM_DELETE="确认删除"
+    MSG_EXT_DELETE_NODE="删除节点"
+    MSG_EXT_INPUT_NAME="请输入节点名称"
+    MSG_EXT_INPUT_PASSWORD="请输入密码"
+    MSG_EXT_INPUT_PORT="请输入端口"
+    MSG_EXT_INPUT_SERVER="请输入服务器地址"
+    MSG_EXT_INPUT_SNI="请输入 SNI"
+    MSG_EXT_INPUT_USERNAME="请输入用户名"
+    MSG_EXT_INVALID_SELECTION="选择无效"
+    MSG_EXT_LINK_EMPTY="链接不能为空"
+    MSG_EXT_LINK_PARSE_FAILED="链接解析失败"
+    MSG_EXT_LINK_UNSUPPORTED="不支持的链接格式"
+    MSG_EXT_MENU_OPTIONS="操作选项"
+    MSG_EXT_MENU_TITLE="外部节点管理"
+    MSG_EXT_NAME="名称"
+    MSG_EXT_NO_NODES="暂无外部节点"
+    MSG_EXT_NODE="节点"
+    MSG_EXT_NODE_ADDED="节点已添加"
+    MSG_EXT_NODE_DELETED="节点已删除"
+    MSG_EXT_NODE_LIST="已配置的外部节点"
+    MSG_EXT_NODE_NOT_FOUND="节点未找到"
+    MSG_EXT_PARSE_RESULT="解析结果"
+    MSG_EXT_PASSWORD_REQUIRED="密码不能为空"
+    MSG_EXT_PASTE_LINK="请粘贴节点链接"
+    MSG_EXT_PORT="端口"
+    MSG_EXT_PORT_INVALID="端口无效"
+    MSG_EXT_PROTOCOL="协议"
+    MSG_EXT_SELECT_AS_EXIT="请选择作为出口的节点编号"
+    MSG_EXT_SELECT_DELETE="请选择要删除的节点编号"
+    MSG_EXT_SELECT_FOR_CHAIN="选择要添加为链路的外部节点"
+    MSG_EXT_SELECT_METHOD="请选择加密方式"
+    MSG_EXT_SELECT_PROTOCOL="选择协议类型"
+    MSG_EXT_SELECT_TEST="请选择要测试的节点编号"
+    MSG_EXT_SELECTED="已选择"
+    MSG_EXT_SERVER="服务器"
+    MSG_EXT_SERVER_REQUIRED="服务器地址不能为空"
+    MSG_EXT_SET_AS_EXIT="设为链式代理出口"
+    MSG_EXT_SKIP_CERT_VERIFY="是否跳过证书验证"
+    MSG_EXT_SUPPORTED_LINKS="支持的链接格式"
+    MSG_EXT_TCP_FAILED="TCP 连接失败"
+    MSG_EXT_TCP_SUCCESS="TCP 连接成功"
+    MSG_EXT_TEST_NODE="测试节点连通性"
+    MSG_EXT_TESTING="正在测试"
+    MSG_EXT_TRAFFIC_ROUTE="流量路径"
+    MSG_INTERNET="互联网"
+    MSG_INVALID_SELECTION="选择无效"
+    MSG_NO="否"
+    MSG_OPTIONAL="可选"
+    MSG_PENDING_CONFIG="待配置"
+    MSG_PORT="端口"
+    MSG_PORT_EMPTY="端口不可为空"
+    MSG_PORT_INVALID="端口不合法"
+    MSG_PROMPT_OVERWRITE="是否覆盖现有配置？[y/n]"
+    MSG_PROMPT_SELECT="请选择"
+    MSG_RECOMMENDED="推荐"
+    MSG_RULES="规则"
+    MSG_STATUS_INVALID="无效"
+    MSG_STATUS_RUNNING="运行中"
+    MSG_STATUS_SUCCESS="成功"
+    MSG_USER="用户"
+    MSG_YES="是"
+
     # 后备 t() 函数
     t() {
         local key="MSG_$1"
@@ -1055,6 +1242,7 @@ readInstallProtocolType() {
                 singBoxVLESSRealityVisionPort=$(jq -r '.inbounds[0].listen_port // empty' "${row}.json" 2>/dev/null)
                 singBoxVLESSRealityVisionServerName=$(jq -r '.inbounds[0].tls.server_name // empty' "${row}.json" 2>/dev/null)
                 realityDomainPort=$(jq -r '.inbounds[0].tls.reality.handshake.server_port // empty' "${row}.json" 2>/dev/null)
+                currentRealityShortId=$(jq -r '(.inbounds[0].tls.reality.short_id // empty) as $sid | if ($sid|type)=="array" then ($sid[0] // empty) else $sid end' "${row}.json" 2>/dev/null)
 
                 realityServerName=${singBoxVLESSRealityVisionServerName}
                 if [[ -f "${configPath}reality_key" ]]; then
@@ -5760,13 +5948,18 @@ EOF
             realityServerName=${singBoxVLESSRealityVisionServerName}
             publicKey=${singBoxVLESSRealityPublicKey}
         fi
-        echoContent yellow " ---> 通用格式(VLESS+reality+uTLS+Vision)"
-        echoContent green "    vless://${id}@$(getPublicIP):${port}?encryption=none&security=reality&pqv=${realityMldsa65Verify}&type=tcp&sni=${realityServerName}&fp=chrome&pbk=${publicKey}&sid=${currentRealityShortId}&flow=xtls-rprx-vision#${email}\n"
+        local pqvParam=""
+        if [[ -n "${realityMldsa65Verify}" && "${realityMldsa65Verify}" != "null" ]]; then
+            pqvParam="&pqv=${realityMldsa65Verify}"
+        fi
+        local vlessUrl="vless://${id}@$(getPublicIP):${port}?encryption=none&security=reality${pqvParam}&type=tcp&sni=${realityServerName}&fp=chrome&pbk=${publicKey}&sid=${currentRealityShortId}&flow=xtls-rprx-vision#${email}"
+        echoContent yellow " ---> Shadowrocket/通用格式(VLESS+Reality+uTLS+Vision)"
+        echoContent green "    ${vlessUrl}\n"
 
         echoContent yellow " ---> 格式化明文(VLESS+reality+uTLS+Vision)"
-        echoContent green "协议类型:VLESS reality，地址:$(getPublicIP)，publicKey:${publicKey}，shortId: ${currentRealityShortId}，pqv=${realityMldsa65Verify}，serverNames：${realityServerName}，端口:${port}，用户ID:${id}，传输方式:tcp，账户名:${email}\n"
+        echoContent green "协议类型:VLESS reality，地址:$(getPublicIP)，publicKey:${publicKey}，shortId: ${currentRealityShortId}${realityMldsa65Verify:+，pqv=${realityMldsa65Verify}}，serverNames：${realityServerName}，端口:${port}，用户ID:${id}，传输方式:tcp，账户名:${email}\n"
         cat <<EOF >>"/etc/Proxy-agent/subscribe_local/default/${user}"
-vless://${id}@$(getPublicIP):${port}?encryption=none&security=reality&pqv=${realityMldsa65Verify}&type=tcp&sni=${realityServerName}&fp=chrome&pbk=${publicKey}&sid=${currentRealityShortId}&flow=xtls-rprx-vision#${email}
+${vlessUrl}
 EOF
         cat <<EOF >>"/etc/Proxy-agent/subscribe_local/clashMeta/${user}"
   - name: "${email}"
@@ -5789,7 +5982,11 @@ EOF
         echo "${singBoxSubscribeLocalConfig}" | jq . >"/etc/Proxy-agent/subscribe_local/sing-box/${user}"
 
         echoContent yellow " ---> 二维码 VLESS(VLESS+reality+uTLS+Vision)"
-        echoContent green "    https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=vless%3A%2F%2F${id}%40$(getPublicIP)%3A${port}%3Fencryption%3Dnone%26security%3Dreality%26type%3Dtcp%26sni%3D${realityServerName}%26fp%3Dchrome%26pbk%3D${publicKey}%26sid%3D${currentRealityShortId}%26flow%3Dxtls-rprx-vision%23${email}\n"
+        local pqvParamEncode=""
+        if [[ -n "${realityMldsa65Verify}" && "${realityMldsa65Verify}" != "null" ]]; then
+            pqvParamEncode="%26pqv%3D${realityMldsa65Verify}"
+        fi
+        echoContent green "    https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=vless%3A%2F%2F${id}%40$(getPublicIP)%3A${port}%3Fencryption%3Dnone%26security%3Dreality${pqvParamEncode}%26type%3Dtcp%26sni%3D${realityServerName}%26fp%3Dchrome%26pbk%3D${publicKey}%26sid%3D${currentRealityShortId}%26flow%3Dxtls-rprx-vision%23${email}\n"
 
     elif [[ "${type}" == "vlessRealityGRPC" ]]; then
         local realityServerName=${xrayVLESSRealityServerName}
@@ -5801,15 +5998,19 @@ EOF
             publicKey=${singBoxVLESSRealityPublicKey}
         fi
 
+        local pqvParam=""
+        if [[ -n "${realityMldsa65Verify}" && "${realityMldsa65Verify}" != "null" ]]; then
+            pqvParam="&pqv=${realityMldsa65Verify}"
+        fi
+        local vlessUrl="vless://${id}@$(getPublicIP):${port}?encryption=none&security=reality${pqvParam}&type=grpc&sni=${realityServerName}&fp=chrome&pbk=${publicKey}&sid=${currentRealityShortId}&path=grpc&serviceName=grpc#${email}"
         echoContent yellow " ---> 通用格式(VLESS+reality+uTLS+gRPC)"
-        # pqv=${realityMldsa65Verify}&
-        echoContent green "    vless://${id}@$(getPublicIP):${port}?encryption=none&security=reality&type=grpc&sni=${realityServerName}&fp=chrome&pbk=${publicKey}&sid=${currentRealityShortId}&path=grpc&serviceName=grpc#${email}\n"
+        echoContent green "    ${vlessUrl}\n"
 
         echoContent yellow " ---> 格式化明文(VLESS+reality+uTLS+gRPC)"
         # pqv=${realityMldsa65Verify}，
-        echoContent green "协议类型:VLESS reality，serviceName:grpc，地址:$(getPublicIP)，publicKey:${publicKey}，shortId: ${currentRealityShortId}，serverNames：${realityServerName}，端口:${port}，用户ID:${id}，传输方式:gRPC，client-fingerprint：chrome，账户名:${email}\n"
+        echoContent green "协议类型:VLESS reality，serviceName:grpc，地址:$(getPublicIP)，publicKey:${publicKey}，shortId: ${currentRealityShortId}${realityMldsa65Verify:+，pqv=${realityMldsa65Verify}}，serverNames：${realityServerName}，端口:${port}，用户ID:${id}，传输方式:gRPC，client-fingerprint：chrome，账户名:${email}\n"
         cat <<EOF >>"/etc/Proxy-agent/subscribe_local/default/${user}"
-vless://${id}@$(getPublicIP):${port}?encryption=none&security=reality&pqv=${realityMldsa65Verify}&type=grpc&sni=${realityServerName}&fp=chrome&pbk=${publicKey}&sid=${currentRealityShortId}&path=grpc&serviceName=grpc#${email}
+${vlessUrl}
 EOF
         cat <<EOF >>"/etc/Proxy-agent/subscribe_local/clashMeta/${user}"
   - name: "${email}"
@@ -5833,7 +6034,11 @@ EOF
         echo "${singBoxSubscribeLocalConfig}" | jq . >"/etc/Proxy-agent/subscribe_local/sing-box/${user}"
 
         echoContent yellow " ---> 二维码 VLESS(VLESS+reality+uTLS+gRPC)"
-        echoContent green "    https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=vless%3A%2F%2F${id}%40$(getPublicIP)%3A${port}%3Fencryption%3Dnone%26security%3Dreality%26type%3Dgrpc%26sni%3D${realityServerName}%26fp%3Dchrome%26pbk%3D${publicKey}%26sid%3D${currentRealityShortId}%26path%3Dgrpc%26serviceName%3Dgrpc%23${email}\n"
+        local pqvParamEncode=""
+        if [[ -n "${realityMldsa65Verify}" && "${realityMldsa65Verify}" != "null" ]]; then
+            pqvParamEncode="%26pqv%3D${realityMldsa65Verify}"
+        fi
+        echoContent green "    https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=vless%3A%2F%2F${id}%40$(getPublicIP)%3A${port}%3Fencryption%3Dnone%26security%3Dreality${pqvParamEncode}%26type%3Dgrpc%26sni%3D${realityServerName}%26fp%3Dchrome%26pbk%3D${publicKey}%26sid%3D${currentRealityShortId}%26path%3Dgrpc%26serviceName%3Dgrpc%23${email}\n"
     elif [[ "${type}" == "tuic" ]]; then
         local tuicUUID=
         tuicUUID=$(echo "${id}" | awk -F "[_]" '{print $1}')
@@ -15161,6 +15366,9 @@ switchLanguage() {
     local langFile="/etc/Proxy-agent/lang_pref"
     local currentLang="${CURRENT_LANG:-zh_CN}"
     local scriptPath="/etc/Proxy-agent/install.sh"
+
+    # 确保目录存在（首次运行/未安装状态也可持久化语言设置）
+    mkdir -p "$(dirname "${langFile}")" 2>/dev/null || true
 
     # 如果安装目录的脚本不存在，使用当前脚本路径
     if [[ ! -f "${scriptPath}" ]]; then
