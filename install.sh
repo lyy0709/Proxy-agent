@@ -10469,6 +10469,26 @@ chainProxyAdvanced() {
         return $?
     fi
 
+    # 检查是否为外部节点模式
+    if [[ -f "/etc/Proxy-agent/sing-box/conf/external_entry_info.json" ]]; then
+        echoContent skyBlue "\n$(t CHAIN_ADVANCED_TITLE)"
+        echoContent red "\n=============================================================="
+        local nodeName
+        nodeName=$(jq -r '.external_node_name // "未知"' /etc/Proxy-agent/sing-box/conf/external_entry_info.json 2>/dev/null)
+        echoContent yellow "当前为外部节点模式: ${nodeName}"
+        echoContent yellow "\n外部节点的配置请在 '外部节点管理' 中修改"
+        echoContent yellow "1.$(t CHAIN_ADVANCED_VIEW_CONFIG)"
+        echoContent yellow "0.$(t BACK)"
+
+        read -r -p "$(t PROMPT_SELECT):" selectType
+        case ${selectType} in
+        1)
+            showChainDetailConfig
+            ;;
+        esac
+        return
+    fi
+
     echoContent skyBlue "\n$(t CHAIN_ADVANCED_TITLE)"
     echoContent red "\n=============================================================="
 
@@ -10628,6 +10648,22 @@ showChainDetailConfig() {
     if [[ -f "/etc/Proxy-agent/sing-box/conf/config/chain_route.json" ]]; then
         echoContent yellow "\n路由配置 (chain_route.json):"
         jq . /etc/Proxy-agent/sing-box/conf/config/chain_route.json
+    fi
+
+    # 显示外部节点配置
+    if [[ -f "/etc/Proxy-agent/sing-box/conf/config/external_outbound.json" ]]; then
+        echoContent yellow "\n外部节点出站配置 (external_outbound.json):"
+        jq . /etc/Proxy-agent/sing-box/conf/config/external_outbound.json
+    fi
+
+    if [[ -f "/etc/Proxy-agent/sing-box/conf/config/external_route.json" ]]; then
+        echoContent yellow "\n外部节点路由配置 (external_route.json):"
+        jq . /etc/Proxy-agent/sing-box/conf/config/external_route.json
+    fi
+
+    if [[ -f "/etc/Proxy-agent/sing-box/conf/external_entry_info.json" ]]; then
+        echoContent yellow "\n外部节点信息 (external_entry_info.json):"
+        jq . /etc/Proxy-agent/sing-box/conf/external_entry_info.json
     fi
 }
 
