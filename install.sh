@@ -7753,7 +7753,7 @@ checkLog() {
 # 脚本快捷方式
 aliasInstall() {
 
-    if [[ -f "$HOME/install.sh" ]] && [[ -d "/etc/Proxy-agent" ]] && grep -Eq "作者[:：]Lynthar|Proxy-agent" "$HOME/install.sh"; then
+    if [[ -f "$HOME/install.sh" ]] && [[ -d "/etc/Proxy-agent" ]] && grep -Eq "作者[:：]lyy0709|作者[:：]Lynthar|Proxy-agent" "$HOME/install.sh"; then
         mv "$HOME/install.sh" /etc/Proxy-agent/install.sh
 
         # 复制 VERSION 文件（如果存在于脚本目录）
@@ -15202,7 +15202,7 @@ switchLanguage() {
 menu() {
     cd "$HOME" || exit
     echoContent red "\n=============================================================="
-    echoContent green "$(t MENU_AUTHOR): Lynthar"
+    echoContent green "$(t MENU_AUTHOR): lyy0709"
 
     # 显示版本号，并在后台检查更新
     local versionDisplay="${SCRIPT_VERSION}"
