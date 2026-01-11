@@ -13266,6 +13266,214 @@ EOF
     echoContent yellow " ---> $(t EXT_TRAFFIC_ROUTE): $(t USER) → $(t ENTRY_NODE) → ${nodeName} → $(t INTERNET)"
 }
 
+# 获取已安装协议的 tag 和端口信息
+# 返回格式: tag|port|协议描述 (每行一个)
+getInstalledProtocolTags() {
+    local configDir="/etc/Proxy-agent/sing-box/conf/config"
+    local result=""
+
+    if [[ ! -d "${configDir}" ]]; then
+        return
+    fi
+
+    # 协议 tag 到友好名称的映射
+    declare -A tagNames=(
+        ["VLESSTCP"]="VLESS+TCP+Vision"
+        ["VLESSWS"]="VLESS+WS"
+        ["VLESSReality"]="VLESS+Reality+Vision"
+        ["VMessWS"]="VMess+WS"
+        ["VMessHTTPUpgrade"]="VMess+HTTPUpgrade"
+        ["VLESSXHTTP"]="VLESS+XHTTP"
+        ["trojan"]="Trojan"
+        ["hysteria2-in"]="Hysteria2"
+        ["singbox-tuic-in"]="TUIC"
+        ["naive"]="NaiveProxy"
+        ["anytls-in"]="AnyTLS"
+        ["ss2022-in"]="Shadowsocks 2022"
+    )
+
+    # 遍历入站配置文件
+    for file in "${configDir}"/*_inbounds.json; do
+        if [[ -f "${file}" && "${file}" != *"chain"* && "${file}" != *"socks"* ]]; then
+            local tags ports
+            tags=$(jq -r '.inbounds[]?.tag // empty' "${file}" 2>/dev/null)
+            ports=$(jq -r '.inbounds[]?.listen_port // empty' "${file}" 2>/dev/null)
+
+            if [[ -n "${tags}" && -n "${ports}" ]]; then
+                local i=0
+                while IFS= read -r tag; do
+                    local port
+                    port=$(echo "${ports}" | sed -n "$((i+1))p")
+                    local name="${tagNames[$tag]:-$tag}"
+                    if [[ -n "${tag}" && -n "${port}" ]]; then
+                        echo "${tag}|${port}|${name}"
+                    fi
+                    ((i++))
+                done <<< "${tags}"
+            fi
+        fi
+    done
+}
+
+# 按协议分流设置外部节点
+setupExternalWithProtocolSplit() {
+    # 先选择外部节点
+    listExternalNodes
+
+    local nodeCount
+    nodeCount=$(getExternalNodeCount)
+
+    if [[ "${nodeCount}" == "0" ]]; then
+        echoContent red "\n ---> $(t EXT_ADD_NODE_FIRST)"
+        return 1
+    fi
+
+    echoContent red "=============================================================="
+    read -r -p "$(t EXT_SELECT_AS_EXIT): " selectIndex
+
+    if [[ -z "${selectIndex}" || "${selectIndex}" == "0" ]]; then
+        return
+    fi
+
+    # 获取节点信息
+    local nodeId nodeName
+    nodeId=$(jq -r --argjson idx "$((selectIndex-1))" '.nodes[$idx].id' "${EXTERNAL_NODE_FILE}" 2>/dev/null)
+    nodeName=$(jq -r --argjson idx "$((selectIndex-1))" '.nodes[$idx].name' "${EXTERNAL_NODE_FILE}" 2>/dev/null)
+
+    if [[ -z "${nodeId}" || "${nodeId}" == "null" ]]; then
+        echoContent red " ---> $(t EXT_INVALID_SELECTION)"
+        return 1
+    fi
+
+    # 获取已安装的协议列表
+    echoContent skyBlue "\n$(t EXT_PROTOCOL_LIST)"
+    echoContent red "=============================================================="
+
+    local protocols=()
+    local index=1
+    while IFS='|' read -r tag port name; do
+        if [[ -n "${tag}" ]]; then
+            protocols+=("${tag}|${port}|${name}")
+            echoContent yellow "  [${index}] ${name} ($(t PORT): ${port}) - tag: ${tag}"
+            ((index++))
+        fi
+    done < <(getInstalledProtocolTags)
+
+    if [[ ${#protocols[@]} -eq 0 ]]; then
+        echoContent red "\n ---> $(t EXT_NO_PROTOCOLS)"
+        return 1
+    fi
+
+    echoContent red "=============================================================="
+    read -r -p "$(t EXT_SELECT_PROTOCOLS): " selectedIndexes
+
+    if [[ -z "${selectedIndexes}" ]]; then
+        return
+    fi
+
+    # 解析用户选择，构建 tag 列表
+    local chainTags=()
+    local chainNames=()
+    IFS=',' read -ra indexes <<< "${selectedIndexes}"
+    for idx in "${indexes[@]}"; do
+        idx=$(echo "${idx}" | tr -d ' ')
+        if [[ "${idx}" =~ ^[0-9]+$ ]] && [[ ${idx} -ge 1 ]] && [[ ${idx} -le ${#protocols[@]} ]]; then
+            local protocolInfo="${protocols[$((idx-1))]}"
+            local tag=$(echo "${protocolInfo}" | cut -d'|' -f1)
+            local name=$(echo "${protocolInfo}" | cut -d'|' -f3)
+            chainTags+=("${tag}")
+            chainNames+=("${name}")
+        fi
+    done
+
+    if [[ ${#chainTags[@]} -eq 0 ]]; then
+        echoContent red " ---> $(t EXT_INVALID_SELECTION)"
+        return 1
+    fi
+
+    # 显示配置摘要
+    echoContent green "\n$(t EXT_SELECTED_CHAIN):"
+    for name in "${chainNames[@]}"; do
+        echoContent yellow "  - ${name}"
+    done
+    echoContent green "\n$(t EXT_SELECTED_DIRECT): 其他协议"
+
+    read -r -p "$(t EXT_CONFIRM_SPLIT)? [y/n]: " confirm
+    if [[ "${confirm}" != "y" && "${confirm}" != "Y" ]]; then
+        return
+    fi
+
+    echoContent yellow "\n$(t EXT_CONFIGURING): ${nodeName}"
+
+    # 生成出站配置
+    local outboundConfig
+    outboundConfig=$(generateExternalOutboundConfig "${nodeId}" "external_outbound")
+
+    if [[ -z "${outboundConfig}" ]]; then
+        echoContent red " ---> $(t EXT_CONFIG_FAILED)"
+        return 1
+    fi
+
+    # 保存出站配置
+    local configDir="/etc/Proxy-agent/sing-box/conf/config"
+    mkdir -p "${configDir}"
+
+    echo "{\"outbounds\": [${outboundConfig}]}" | jq . > "${configDir}/external_outbound.json"
+
+    # 构建 inbound 数组 JSON
+    local inboundJson="["
+    local first=true
+    for tag in "${chainTags[@]}"; do
+        if [[ "${first}" == "true" ]]; then
+            inboundJson+="\"${tag}\""
+            first=false
+        else
+            inboundJson+=",\"${tag}\""
+        fi
+    done
+    inboundJson+="]"
+
+    # 生成分流路由配置
+    cat <<EOF > "${configDir}/external_route.json"
+{
+    "route": {
+        "rules": [
+            {
+                "inbound": ${inboundJson},
+                "outbound": "external_outbound"
+            }
+        ],
+        "final": "direct"
+    }
+}
+EOF
+
+    # 构建 chain_protocols JSON 数组
+    local chainProtocolsJson=$(printf '%s\n' "${chainTags[@]}" | jq -R . | jq -s .)
+
+    # 保存外部节点入口信息
+    cat <<EOF > "/etc/Proxy-agent/sing-box/conf/external_entry_info.json"
+{
+    "role": "entry",
+    "mode": "external_protocol_split",
+    "external_node_id": "${nodeId}",
+    "external_node_name": "${nodeName}",
+    "chain_protocols": ${chainProtocolsJson}
+}
+EOF
+
+    # 合并配置
+    mergeSingBoxConfig
+
+    # 重启服务
+    reloadCore
+
+    echoContent green "\n ---> $(t EXT_SPLIT_SUCCESS)"
+    echoContent yellow " ---> $(t EXT_SELECTED_CHAIN): ${chainNames[*]}"
+    echoContent yellow " ---> $(t EXT_TRAFFIC_ROUTE): 选中协议 → ${nodeName} → $(t INTERNET)"
+    echoContent yellow " ---> 其他协议 → $(t INTERNET) ($(t EXT_SELECTED_DIRECT))"
+}
+
 # 测试外部节点连通性
 testExternalNodeConnection() {
     listExternalNodes
@@ -13321,6 +13529,7 @@ externalNodeMenu() {
     echoContent yellow "  3. $(t EXT_DELETE_NODE)"
     echoContent yellow "  4. $(t EXT_TEST_NODE)"
     echoContent yellow "  5. $(t EXT_SET_AS_EXIT)"
+    echoContent yellow "  6. $(t EXT_PROTOCOL_SPLIT)"
     echoContent yellow "  0. $(t BACK)"
 
     read -r -p "$(t PROMPT_SELECT): " menuChoice
@@ -13353,6 +13562,9 @@ externalNodeMenu() {
             ;;
         5)
             setupExternalAsSingleExit
+            ;;
+        6)
+            setupExternalWithProtocolSplit
             ;;
         0|"")
             chainProxyMenu
