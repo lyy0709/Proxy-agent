@@ -4786,6 +4786,7 @@ initXrayConfig() {
             uuid=${customUUID}
         else
             uuid=$(/etc/Proxy-agent/xray/xray uuid)
+            echoContent yellow "\nuuid: ${uuid}"
         fi
 
         echoContent yellow "\n请输入自定义用户名[需合法]，[回车]随机用户名"
@@ -5225,6 +5226,7 @@ initSingBoxConfig() {
             uuid=${customUUID}
         else
             uuid=$(/etc/Proxy-agent/sing-box/sing-box generate uuid)
+            echoContent yellow "\nuuid: ${uuid}"
         fi
 
         echoContent yellow "\n请输入自定义用户名[需合法]，[回车]随机用户名"
