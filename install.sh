@@ -10262,6 +10262,42 @@ showChainStatus() {
             echoContent green "╚══════════════════════════════════════════════════════════════╝"
         fi
 
+    # 检查是否为外部节点作为出口
+    elif [[ -f "/etc/Proxy-agent/sing-box/conf/external_entry_info.json" ]]; then
+        local nodeId nodeName nodeInfo
+        nodeId=$(jq -r '.external_node_id // empty' /etc/Proxy-agent/sing-box/conf/external_entry_info.json 2>/dev/null)
+        nodeName=$(jq -r '.external_node_name // empty' /etc/Proxy-agent/sing-box/conf/external_entry_info.json 2>/dev/null)
+
+        # 检查 sing-box 是否运行
+        if pgrep -x "sing-box" >/dev/null 2>&1; then
+            status="✅ 运行中"
+        else
+            status="❌ 未运行"
+        fi
+
+        # 获取外部节点详细信息
+        local serverIP="" serverPort="" protocol=""
+        if [[ -n "${nodeId}" ]]; then
+            nodeInfo=$(getExternalNodeById "${nodeId}")
+            if [[ -n "${nodeInfo}" ]]; then
+                serverIP=$(echo "${nodeInfo}" | jq -r '.server // empty')
+                serverPort=$(echo "${nodeInfo}" | jq -r '.server_port // empty')
+                protocol=$(echo "${nodeInfo}" | jq -r '.type // empty' | tr '[:lower:]' '[:upper:]')
+            fi
+        fi
+
+        echoContent green "╔══════════════════════════════════════════════════════════════╗"
+        echoContent green "║                      链式代理状态                              ║"
+        echoContent green "╠══════════════════════════════════════════════════════════════╣"
+        echoContent yellow "  当前模式: 外部节点出口模式"
+        echoContent yellow "  外部节点: ${nodeName}"
+        echoContent yellow "  协议类型: ${protocol:-未知}"
+        echoContent yellow "  出口地址: ${serverIP}:${serverPort}"
+        echoContent yellow "  运行状态: ${status}"
+        echoContent green "╠══════════════════════════════════════════════════════════════╣"
+        echoContent yellow "  流量路径: 用户 → 本机 → ${nodeName} → 互联网"
+        echoContent green "╚══════════════════════════════════════════════════════════════╝"
+
     else
         echoContent yellow "未配置链式代理"
         echoContent yellow "请使用 '快速配置向导' 进行配置"
