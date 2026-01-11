@@ -2915,8 +2915,8 @@ installSingBox() {
             wget -c -q -P /etc/Proxy-agent/sing-box/ "https://github.com/SagerNet/sing-box/releases/download/${version}/${singBoxTarFileName}"
             wget -c -q -P /etc/Proxy-agent/sing-box/ "https://github.com/SagerNet/sing-box/releases/download/${version}/sing-box_${version/v/}_checksums.txt"
         else
-            wget -c -q "${wgetShowProgressStatus}" -P /etc/Proxy-agent/sing-box/ "https://github.com/SagerNet/sing-box/releases/download/${version}/${singBoxTarFileName}"
-            wget -c -q "${wgetShowProgressStatus}" -P /etc/Proxy-agent/sing-box/ "https://github.com/SagerNet/sing-box/releases/download/${version}/sing-box_${version/v/}_checksums.txt"
+            wget -c -q ${wgetShowProgressStatus} -P /etc/Proxy-agent/sing-box/ "https://github.com/SagerNet/sing-box/releases/download/${version}/${singBoxTarFileName}"
+            wget -c -q ${wgetShowProgressStatus} -P /etc/Proxy-agent/sing-box/ "https://github.com/SagerNet/sing-box/releases/download/${version}/sing-box_${version/v/}_checksums.txt"
         fi
 
         if [[ ! -f "${singBoxTarFile}" ]]; then
@@ -3014,8 +3014,8 @@ installXray() {
             wget -c -q -P /etc/Proxy-agent/xray/ "https://github.com/XTLS/Xray-core/releases/download/${version}/${xrayCoreCPUVendor}.zip"
             wget -c -q -P /etc/Proxy-agent/xray/ "https://github.com/XTLS/Xray-core/releases/download/${version}/${xrayCoreCPUVendor}.zip.dgst"
         else
-            wget -c -q "${wgetShowProgressStatus}" -P /etc/Proxy-agent/xray/ "https://github.com/XTLS/Xray-core/releases/download/${version}/${xrayCoreCPUVendor}.zip"
-            wget -c -q "${wgetShowProgressStatus}" -P /etc/Proxy-agent/xray/ "https://github.com/XTLS/Xray-core/releases/download/${version}/${xrayCoreCPUVendor}.zip.dgst"
+            wget -c -q ${wgetShowProgressStatus} -P /etc/Proxy-agent/xray/ "https://github.com/XTLS/Xray-core/releases/download/${version}/${xrayCoreCPUVendor}.zip"
+            wget -c -q ${wgetShowProgressStatus} -P /etc/Proxy-agent/xray/ "https://github.com/XTLS/Xray-core/releases/download/${version}/${xrayCoreCPUVendor}.zip.dgst"
         fi
 
         if [[ ! -f "${xrayZipFile}" ]]; then
@@ -3055,8 +3055,8 @@ installXray() {
                 wget -c -q -P /etc/Proxy-agent/xray/ "https://github.com/Loyalsoldier/v2ray-rules-dat/releases/download/${version}/geosite.dat"
                 wget -c -q -P /etc/Proxy-agent/xray/ "https://github.com/Loyalsoldier/v2ray-rules-dat/releases/download/${version}/geoip.dat"
             else
-                wget -c -q "${wgetShowProgressStatus}" -P /etc/Proxy-agent/xray/ "https://github.com/Loyalsoldier/v2ray-rules-dat/releases/download/${version}/geosite.dat"
-                wget -c -q "${wgetShowProgressStatus}" -P /etc/Proxy-agent/xray/ "https://github.com/Loyalsoldier/v2ray-rules-dat/releases/download/${version}/geoip.dat"
+                wget -c -q ${wgetShowProgressStatus} -P /etc/Proxy-agent/xray/ "https://github.com/Loyalsoldier/v2ray-rules-dat/releases/download/${version}/geosite.dat"
+                wget -c -q ${wgetShowProgressStatus} -P /etc/Proxy-agent/xray/ "https://github.com/Loyalsoldier/v2ray-rules-dat/releases/download/${version}/geoip.dat"
             fi
 
             chmod 655 /etc/Proxy-agent/xray/xray
@@ -3141,8 +3141,8 @@ updateGeoSite() {
         wget -c -q -P ${configPath}../ "https://github.com/Loyalsoldier/v2ray-rules-dat/releases/download/${version}/geosite.dat"
         wget -c -q -P ${configPath}../ "https://github.com/Loyalsoldier/v2ray-rules-dat/releases/download/${version}/geoip.dat"
     else
-        wget -c -q "${wgetShowProgressStatus}" -P ${configPath}../ "https://github.com/Loyalsoldier/v2ray-rules-dat/releases/download/${version}/geosite.dat"
-        wget -c -q "${wgetShowProgressStatus}" -P ${configPath}../ "https://github.com/Loyalsoldier/v2ray-rules-dat/releases/download/${version}/geoip.dat"
+        wget -c -q ${wgetShowProgressStatus} -P ${configPath}../ "https://github.com/Loyalsoldier/v2ray-rules-dat/releases/download/${version}/geosite.dat"
+        wget -c -q ${wgetShowProgressStatus} -P ${configPath}../ "https://github.com/Loyalsoldier/v2ray-rules-dat/releases/download/${version}/geoip.dat"
     fi
 
     reloadCore
@@ -3166,7 +3166,7 @@ updateXray() {
         if [[ "${release}" == "alpine" ]]; then
             wget -c -q -P /etc/Proxy-agent/xray/ "https://github.com/XTLS/Xray-core/releases/download/${version}/${xrayCoreCPUVendor}.zip"
         else
-            wget -c -q "${wgetShowProgressStatus}" -P /etc/Proxy-agent/xray/ "https://github.com/XTLS/Xray-core/releases/download/${version}/${xrayCoreCPUVendor}.zip"
+            wget -c -q ${wgetShowProgressStatus} -P /etc/Proxy-agent/xray/ "https://github.com/XTLS/Xray-core/releases/download/${version}/${xrayCoreCPUVendor}.zip"
         fi
 
         unzip -o "/etc/Proxy-agent/xray/${xrayCoreCPUVendor}.zip" -d /etc/Proxy-agent/xray >/dev/null
@@ -4077,7 +4077,7 @@ downloadSingBoxGeositeDB() {
         if [[ "${release}" == "alpine" ]]; then
             wget -q -P "${singBoxConfigPath}" https://github.com/Johnshall/sing-geosite/releases/latest/download/geosite.db
         else
-            wget -q "${wgetShowProgressStatus}" -P "${singBoxConfigPath}" https://github.com/Johnshall/sing-geosite/releases/latest/download/geosite.db
+            wget -q ${wgetShowProgressStatus} -P "${singBoxConfigPath}" https://github.com/Johnshall/sing-geosite/releases/latest/download/geosite.db
         fi
 
     fi
@@ -7235,7 +7235,7 @@ rollbackScript() {
         if [[ "${release}" == "alpine" ]]; then
             wget -c -q -O "${installDir}/install.sh" "${downloadUrl}"
         else
-            wget -c -q "${wgetShowProgressStatus}" -O "${installDir}/install.sh" "${downloadUrl}"
+            wget -c -q ${wgetShowProgressStatus} -O "${installDir}/install.sh" "${downloadUrl}"
         fi
 
         if [[ ! -f "${installDir}/install.sh" || ! -s "${installDir}/install.sh" ]]; then
@@ -7385,7 +7385,7 @@ updateV2RayAgent() {
     if [[ "${release}" == "alpine" ]]; then
         wget -c -q -P "${installDir}/" -N "${rawBase}/install.sh"
     else
-        wget -c -q "${wgetShowProgressStatus}" -P "${installDir}/" -N "${rawBase}/install.sh"
+        wget -c -q ${wgetShowProgressStatus} -P "${installDir}/" -N "${rawBase}/install.sh"
     fi
 
     if [[ ! -f "${installDir}/install.sh" ]]; then
@@ -14577,7 +14577,7 @@ subscribe() {
                         if [[ "${release}" == "alpine" ]]; then
                             wget -O "/etc/Proxy-agent/subscribe/sing-box/${emailMd5}" -q "https://raw.githubusercontent.com/mack-a/v2ray-agent/master/documents/sing-box.json"
                         else
-                            wget -O "/etc/Proxy-agent/subscribe/sing-box/${emailMd5}" -q "${wgetShowProgressStatus}" "https://raw.githubusercontent.com/mack-a/v2ray-agent/master/documents/sing-box.json"
+                            wget -O "/etc/Proxy-agent/subscribe/sing-box/${emailMd5}" -q ${wgetShowProgressStatus} "https://raw.githubusercontent.com/mack-a/v2ray-agent/master/documents/sing-box.json"
                         fi
 
                         jq ".outbounds=$(jq ".outbounds|map(if has(\"outbounds\") then .outbounds += $(jq ".|map(.tag)" "/etc/Proxy-agent/subscribe_local/sing-box/${email}") else . end)" "/etc/Proxy-agent/subscribe/sing-box/${emailMd5}")" "/etc/Proxy-agent/subscribe/sing-box/${emailMd5}" >"/etc/Proxy-agent/subscribe/sing-box/${emailMd5}_tmp" && mv "/etc/Proxy-agent/subscribe/sing-box/${emailMd5}_tmp" "/etc/Proxy-agent/subscribe/sing-box/${emailMd5}"
