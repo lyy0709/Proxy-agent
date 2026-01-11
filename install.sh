@@ -10639,12 +10639,18 @@ removeChainProxy() {
     # 检测链式代理模式
     local isMultiChain=false
     local isSingleChain=false
+    local isExternalMode=false
 
     if [[ -f "/etc/Proxy-agent/sing-box/conf/chain_multi_info.json" ]]; then
         isMultiChain=true
         local chainCount
         chainCount=$(jq -r '.chains | length' /etc/Proxy-agent/sing-box/conf/chain_multi_info.json 2>/dev/null || echo "0")
         echoContent yellow "\n$(t CHAIN_UNINSTALL_MULTI "${chainCount}")"
+    elif [[ -f "/etc/Proxy-agent/sing-box/conf/external_entry_info.json" ]]; then
+        isExternalMode=true
+        local nodeName
+        nodeName=$(jq -r '.external_node_name // "未知"' /etc/Proxy-agent/sing-box/conf/external_entry_info.json 2>/dev/null)
+        echoContent yellow "\n检测到外部节点链式代理配置: ${nodeName}"
     elif [[ -f "/etc/Proxy-agent/sing-box/conf/chain_entry_info.json" ]] || \
          [[ -f "/etc/Proxy-agent/sing-box/conf/chain_exit_info.json" ]] || \
          [[ -f "/etc/Proxy-agent/sing-box/conf/chain_relay_info.json" ]]; then
@@ -10668,6 +10674,14 @@ removeChainProxy() {
     rm -f /etc/Proxy-agent/sing-box/conf/chain_exit_info.json
     rm -f /etc/Proxy-agent/sing-box/conf/chain_entry_info.json
     rm -f /etc/Proxy-agent/sing-box/conf/chain_relay_info.json
+
+    # 删除外部节点链式代理配置
+    if [[ "${isExternalMode}" == "true" ]] || [[ -f "/etc/Proxy-agent/sing-box/conf/external_entry_info.json" ]]; then
+        rm -f /etc/Proxy-agent/sing-box/conf/config/external_outbound.json
+        rm -f /etc/Proxy-agent/sing-box/conf/config/external_route.json
+        rm -f /etc/Proxy-agent/sing-box/conf/external_entry_info.json
+        echoContent yellow " ---> 已删除外部节点链式代理配置"
+    fi
 
     # 删除 sing-box 配置文件 - 多链路模式
     if [[ "${isMultiChain}" == "true" ]]; then
