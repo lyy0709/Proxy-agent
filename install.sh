@@ -76,7 +76,7 @@ _load_version() {
     else
         # 尝试从 GitHub Releases 获取最新版本（初次安装时使用）
         local remoteVersion
-        local apiUrl="https://api.github.com/repos/Lynthar/Proxy-agent/releases/latest"
+        local apiUrl="https://api.github.com/repos/lyy0709/Proxy-agent/releases/latest"
         remoteVersion=$(curl -s --connect-timeout 3 -m 5 "${apiUrl}" 2>/dev/null | \
             sed -n 's/.*"tag_name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -1)
 
@@ -97,7 +97,7 @@ _load_version
 # GitHub Release 版本检测
 # 从 GitHub API 获取最新 Release 版本号
 # ============================================================================
-GITHUB_REPO="Lynthar/Proxy-agent"
+GITHUB_REPO="lyy0709/Proxy-agent"
 GITHUB_API_URL="https://api.github.com/repos/${GITHUB_REPO}/releases/latest"
 
 # 获取最新 Release 版本号
@@ -480,7 +480,7 @@ checkCentosSELinux() {
     if command -v getenforce >/dev/null 2>&1 && [[ "$(getenforce)" == "Enforcing" ]]; then
         echoContent yellow "# $(t NOTICE)"
         echoContent yellow "$(t SYS_SELINUX_NOTICE)"
-        echoContent yellow "https://github.com/Lynthar/Proxy-agent/blob/master/documents/selinux.md"
+        echoContent yellow "https://github.com/lyy0709/Proxy-agent/blob/master/documents/selinux.md"
         exit 1
     fi
 }
@@ -878,8 +878,8 @@ readAcmeTLS() {
 readCustomPort() {
     if [[ -n "${configPath}" && -z "${realityStatus}" && "${coreInstallType}" == "1" ]]; then
         local port=
-        port=$(jq -r .inbounds[0].port "${configPath}${frontingType}.json")
-        if [[ "${port}" != "443" ]]; then
+        port=$(jq -r '.inbounds[0].port // empty' "${configPath}${frontingType}.json" 2>/dev/null)
+        if [[ -n "${port}" && "${port}" != "443" && "${port}" != "null" ]]; then
             customPort=${port}
         fi
     fi
@@ -979,29 +979,29 @@ readInstallProtocolType() {
             currentInstallProtocolType="${currentInstallProtocolType}0,"
             frontingType=02_VLESS_TCP_inbounds
             if [[ "${coreInstallType}" == "2" ]]; then
-                singBoxVLESSVisionPort=$(jq .inbounds[0].listen_port "${row}.json")
+                singBoxVLESSVisionPort=$(jq -r '.inbounds[0].listen_port // empty' "${row}.json" 2>/dev/null)
             fi
         fi
         if echo "${row}" | grep -q VLESS_WS_inbounds; then
             currentInstallProtocolType="${currentInstallProtocolType}1,"
             if [[ "${coreInstallType}" == "2" ]]; then
                 frontingType=03_VLESS_WS_inbounds
-                singBoxVLESSWSPort=$(jq .inbounds[0].listen_port "${row}.json")
+                singBoxVLESSWSPort=$(jq -r '.inbounds[0].listen_port // empty' "${row}.json" 2>/dev/null)
             fi
         fi
         if echo "${row}" | grep -q VLESS_XHTTP_inbounds; then
             currentInstallProtocolType="${currentInstallProtocolType}12,"
-            xrayVLESSRealityXHTTPort=$(jq -r .inbounds[0].port "${row}.json")
+            xrayVLESSRealityXHTTPort=$(jq -r '.inbounds[0].port // empty' "${row}.json" 2>/dev/null)
 
-            xrayVLESSRealityXHTTPServerName=$(jq -r .inbounds[0].streamSettings.realitySettings.serverNames[0] "${row}.json")
+            xrayVLESSRealityXHTTPServerName=$(jq -r '.inbounds[0].streamSettings.realitySettings.serverNames[0] // empty' "${row}.json" 2>/dev/null)
 
-            currentRealityXHTTPPublicKey=$(jq -r .inbounds[0].streamSettings.realitySettings.publicKey "${row}.json")
-            currentRealityXHTTPShortId=$(jq -r .inbounds[0].streamSettings.realitySettings.shortIds[0] "${row}.json")
-            #            currentRealityXHTTPPrivateKey=$(jq -r .inbounds[0].streamSettings.realitySettings.privateKey "${row}.json")
+            currentRealityXHTTPPublicKey=$(jq -r '.inbounds[0].streamSettings.realitySettings.publicKey // empty' "${row}.json" 2>/dev/null)
+            currentRealityXHTTPShortId=$(jq -r '.inbounds[0].streamSettings.realitySettings.shortIds[0] // empty' "${row}.json" 2>/dev/null)
+            #            currentRealityXHTTPPrivateKey=$(jq -r '.inbounds[0].streamSettings.realitySettings.privateKey // empty' "${row}.json" 2>/dev/null)
 
             #            if [[ "${coreInstallType}" == "2" ]]; then
             #                frontingType=03_VLESS_WS_inbounds
-            #                singBoxVLESSWSPort=$(jq .inbounds[0].listen_port "${row}.json")
+            #                singBoxVLESSWSPort=$(jq -r '.inbounds[0].listen_port // empty' "${row}.json" 2>/dev/null)
             #            fi
         fi
 
@@ -1012,14 +1012,14 @@ readInstallProtocolType() {
             currentInstallProtocolType="${currentInstallProtocolType}3,"
             if [[ "${coreInstallType}" == "2" ]]; then
                 frontingType=05_VMess_WS_inbounds
-                singBoxVMessWSPort=$(jq .inbounds[0].listen_port "${row}.json")
+                singBoxVMessWSPort=$(jq -r '.inbounds[0].listen_port // empty' "${row}.json" 2>/dev/null)
             fi
         fi
         if echo "${row}" | grep -q trojan_TCP_inbounds; then
             currentInstallProtocolType="${currentInstallProtocolType}4,"
             if [[ "${coreInstallType}" == "2" ]]; then
                 frontingType=04_trojan_TCP_inbounds
-                singBoxTrojanPort=$(jq .inbounds[0].listen_port "${row}.json")
+                singBoxTrojanPort=$(jq -r '.inbounds[0].listen_port // empty' "${row}.json" 2>/dev/null)
             fi
         fi
         if echo "${row}" | grep -q VLESS_gRPC_inbounds; then
@@ -1029,38 +1029,38 @@ readInstallProtocolType() {
             currentInstallProtocolType="${currentInstallProtocolType}6,"
             if [[ "${coreInstallType}" == "2" ]]; then
                 frontingType=06_hysteria2_inbounds
-                singBoxHysteria2Port=$(jq .inbounds[0].listen_port "${row}.json")
+                singBoxHysteria2Port=$(jq -r '.inbounds[0].listen_port // empty' "${row}.json" 2>/dev/null)
             fi
         fi
         if echo "${row}" | grep -q VLESS_vision_reality_inbounds; then
             currentInstallProtocolType="${currentInstallProtocolType}7,"
             if [[ "${coreInstallType}" == "1" ]]; then
-                xrayVLESSRealityServerName=$(jq -r .inbounds[1].streamSettings.realitySettings.serverNames[0] "${row}.json")
+                xrayVLESSRealityServerName=$(jq -r '.inbounds[1].streamSettings.realitySettings.serverNames[0] // empty' "${row}.json" 2>/dev/null)
                 realityServerName=${xrayVLESSRealityServerName}
-                xrayVLESSRealityPort=$(jq -r .inbounds[0].port "${row}.json")
+                xrayVLESSRealityPort=$(jq -r '.inbounds[0].port // empty' "${row}.json" 2>/dev/null)
 
-                realityDomainPort=$(jq -r .inbounds[1].streamSettings.realitySettings.target "${row}.json" | awk -F '[:]' '{print $2}')
+                realityDomainPort=$(jq -r '.inbounds[1].streamSettings.realitySettings.target // empty' "${row}.json" 2>/dev/null | awk -F '[:]' '{print $2}')
 
-                currentRealityPublicKey=$(jq -r .inbounds[1].streamSettings.realitySettings.publicKey "${row}.json")
-                currentRealityPrivateKey=$(jq -r .inbounds[1].streamSettings.realitySettings.privateKey "${row}.json")
-                currentRealityShortId=$(jq -r .inbounds[1].streamSettings.realitySettings.shortIds[0] "${row}.json")
+                currentRealityPublicKey=$(jq -r '.inbounds[1].streamSettings.realitySettings.publicKey // empty' "${row}.json" 2>/dev/null)
+                currentRealityPrivateKey=$(jq -r '.inbounds[1].streamSettings.realitySettings.privateKey // empty' "${row}.json" 2>/dev/null)
+                currentRealityShortId=$(jq -r '.inbounds[1].streamSettings.realitySettings.shortIds[0] // empty' "${row}.json" 2>/dev/null)
 
-                currentRealityMldsa65Seed=$(jq -r .inbounds[1].streamSettings.realitySettings.mldsa65Seed "${row}.json")
-                currentRealityMldsa65Verify=$(jq -r .inbounds[1].streamSettings.realitySettings.mldsa65Verify "${row}.json")
+                currentRealityMldsa65Seed=$(jq -r '.inbounds[1].streamSettings.realitySettings.mldsa65Seed // empty' "${row}.json" 2>/dev/null)
+                currentRealityMldsa65Verify=$(jq -r '.inbounds[1].streamSettings.realitySettings.mldsa65Verify // empty' "${row}.json" 2>/dev/null)
 
                 frontingTypeReality=07_VLESS_vision_reality_inbounds
 
             elif [[ "${coreInstallType}" == "2" ]]; then
                 frontingTypeReality=07_VLESS_vision_reality_inbounds
-                singBoxVLESSRealityVisionPort=$(jq -r .inbounds[0].listen_port "${row}.json")
-                singBoxVLESSRealityVisionServerName=$(jq -r .inbounds[0].tls.server_name "${row}.json")
-                realityDomainPort=$(jq -r .inbounds[0].tls.reality.handshake.server_port "${row}.json")
+                singBoxVLESSRealityVisionPort=$(jq -r '.inbounds[0].listen_port // empty' "${row}.json" 2>/dev/null)
+                singBoxVLESSRealityVisionServerName=$(jq -r '.inbounds[0].tls.server_name // empty' "${row}.json" 2>/dev/null)
+                realityDomainPort=$(jq -r '.inbounds[0].tls.reality.handshake.server_port // empty' "${row}.json" 2>/dev/null)
 
                 realityServerName=${singBoxVLESSRealityVisionServerName}
                 if [[ -f "${configPath}reality_key" ]]; then
                     singBoxVLESSRealityPublicKey=$(grep "publicKey" <"${configPath}reality_key" | awk -F "[:]" '{print $2}')
 
-                    currentRealityPrivateKey=$(jq -r .inbounds[0].tls.reality.private_key "${row}.json")
+                    currentRealityPrivateKey=$(jq -r '.inbounds[0].tls.reality.private_key // empty' "${row}.json" 2>/dev/null)
                     currentRealityPublicKey=$(grep "publicKey" <"${configPath}reality_key" | awk -F "[:]" '{print $2}')
                 fi
             fi
@@ -1069,8 +1069,8 @@ readInstallProtocolType() {
             currentInstallProtocolType="${currentInstallProtocolType}8,"
             if [[ "${coreInstallType}" == "2" ]]; then
                 frontingTypeReality=08_VLESS_vision_gRPC_inbounds
-                singBoxVLESSRealityGRPCPort=$(jq -r .inbounds[0].listen_port "${row}.json")
-                singBoxVLESSRealityGRPCServerName=$(jq -r .inbounds[0].tls.server_name "${row}.json")
+                singBoxVLESSRealityGRPCPort=$(jq -r '.inbounds[0].listen_port // empty' "${row}.json" 2>/dev/null)
+                singBoxVLESSRealityGRPCServerName=$(jq -r '.inbounds[0].tls.server_name // empty' "${row}.json" 2>/dev/null)
                 if [[ -f "${configPath}reality_key" ]]; then
                     singBoxVLESSRealityPublicKey=$(grep "publicKey" <"${configPath}reality_key" | awk -F "[:]" '{print $2}')
                 fi
@@ -1080,21 +1080,21 @@ readInstallProtocolType() {
             currentInstallProtocolType="${currentInstallProtocolType}9,"
             if [[ "${coreInstallType}" == "2" ]]; then
                 frontingType=09_tuic_inbounds
-                singBoxTuicPort=$(jq .inbounds[0].listen_port "${row}.json")
+                singBoxTuicPort=$(jq -r '.inbounds[0].listen_port // empty' "${row}.json" 2>/dev/null)
             fi
         fi
         if echo "${row}" | grep -q naive_inbounds; then
             currentInstallProtocolType="${currentInstallProtocolType}10,"
             if [[ "${coreInstallType}" == "2" ]]; then
                 frontingType=10_naive_inbounds
-                singBoxNaivePort=$(jq .inbounds[0].listen_port "${row}.json")
+                singBoxNaivePort=$(jq -r '.inbounds[0].listen_port // empty' "${row}.json" 2>/dev/null)
             fi
         fi
         if echo "${row}" | grep -q anytls_inbounds; then
             currentInstallProtocolType="${currentInstallProtocolType}13,"
             if [[ "${coreInstallType}" == "2" ]]; then
                 frontingType=13_anytls_inbounds
-                singBoxAnyTLSPort=$(jq .inbounds[0].listen_port "${row}.json")
+                singBoxAnyTLSPort=$(jq -r '.inbounds[0].listen_port // empty' "${row}.json" 2>/dev/null)
             fi
         fi
         if echo "${row}" | grep -q ss2022_inbounds; then
@@ -1213,8 +1213,8 @@ check1Panel() {
 readInstallAlpn() {
     if [[ -n "${currentInstallProtocolType}" && -z "${realityStatus}" ]]; then
         local alpn
-        alpn=$(jq -r .inbounds[0].streamSettings.tlsSettings.alpn[0] ${configPath}${frontingType}.json)
-        if [[ -n ${alpn} ]]; then
+        alpn=$(jq -r '.inbounds[0].streamSettings.tlsSettings.alpn[0] // empty' "${configPath}${frontingType}.json" 2>/dev/null)
+        if [[ -n "${alpn}" && "${alpn}" != "null" ]]; then
             currentAlpn=${alpn}
         fi
     fi
@@ -1415,44 +1415,44 @@ readConfigHostPathUUID() {
 
         # 安装
         if [[ -n "${frontingType}" ]]; then
-            currentHost=$(jq -r .inbounds[0].streamSettings.tlsSettings.certificates[0].certificateFile ${configPath}${frontingType}.json | awk -F '[t][l][s][/]' '{print $2}' | awk -F '[.][c][r][t]' '{print $1}')
+            currentHost=$(jq -r '.inbounds[0].streamSettings.tlsSettings.certificates[0].certificateFile // empty' "${configPath}${frontingType}.json" 2>/dev/null | awk -F '[t][l][s][/]' '{print $2}' | awk -F '[.][c][r][t]' '{print $1}')
 
-            currentPort=$(jq .inbounds[0].port ${configPath}${frontingType}.json)
+            currentPort=$(jq -r '.inbounds[0].port // empty' "${configPath}${frontingType}.json" 2>/dev/null)
 
             local defaultPortFile=
-            defaultPortFile=$(find ${configPath}* | grep "default")
+            defaultPortFile=$(find "${configPath}"* 2>/dev/null | grep "default")
 
             if [[ -n "${defaultPortFile}" ]]; then
                 currentDefaultPort=$(echo "${defaultPortFile}" | awk -F [_] '{print $4}')
             else
-                currentDefaultPort=$(jq -r .inbounds[0].port ${configPath}${frontingType}.json)
+                currentDefaultPort=$(jq -r '.inbounds[0].port // empty' "${configPath}${frontingType}.json" 2>/dev/null)
             fi
-            currentUUID=$(jq -r .inbounds[0].settings.clients[0].id ${configPath}${frontingType}.json)
-            currentClients=$(jq -r .inbounds[0].settings.clients ${configPath}${frontingType}.json)
+            currentUUID=$(jq -r '.inbounds[0].settings.clients[0].id // empty' "${configPath}${frontingType}.json" 2>/dev/null)
+            currentClients=$(jq -r '.inbounds[0].settings.clients // empty' "${configPath}${frontingType}.json" 2>/dev/null)
         fi
 
         # reality
         if echo ${currentInstallProtocolType} | grep -q ",7,"; then
 
-            currentClients=$(jq -r .inbounds[1].settings.clients ${configPath}07_VLESS_vision_reality_inbounds.json)
-            currentUUID=$(jq -r .inbounds[1].settings.clients[0].id ${configPath}07_VLESS_vision_reality_inbounds.json)
-            xrayVLESSRealityVisionPort=$(jq -r .inbounds[0].port ${configPath}07_VLESS_vision_reality_inbounds.json)
+            currentClients=$(jq -r '.inbounds[1].settings.clients // empty' "${configPath}07_VLESS_vision_reality_inbounds.json" 2>/dev/null)
+            currentUUID=$(jq -r '.inbounds[1].settings.clients[0].id // empty' "${configPath}07_VLESS_vision_reality_inbounds.json" 2>/dev/null)
+            xrayVLESSRealityVisionPort=$(jq -r '.inbounds[0].port // empty' "${configPath}07_VLESS_vision_reality_inbounds.json" 2>/dev/null)
             if [[ "${currentPort}" == "${xrayVLESSRealityVisionPort}" ]]; then
                 xrayVLESSRealityVisionPort="${currentDefaultPort}"
             fi
         fi
     elif [[ "${coreInstallType}" == "2" ]]; then
         if [[ -n "${frontingType}" ]]; then
-            currentHost=$(jq -r .inbounds[0].tls.server_name ${configPath}${frontingType}.json)
-            if echo ${currentInstallProtocolType} | grep -q ",11," && [[ "${currentHost}" == "null" ]]; then
+            currentHost=$(jq -r '.inbounds[0].tls.server_name // empty' "${configPath}${frontingType}.json" 2>/dev/null)
+            if echo ${currentInstallProtocolType} | grep -q ",11," && [[ "${currentHost}" == "null" || -z "${currentHost}" ]]; then
                 currentHost=$(grep 'server_name' <${nginxConfigPath}sing_box_VMess_HTTPUpgrade.conf | awk '{print $2}')
                 currentHost=${currentHost//;/}
             fi
-            currentUUID=$(jq -r .inbounds[0].users[0].uuid ${configPath}${frontingType}.json)
-            currentClients=$(jq -r .inbounds[0].users ${configPath}${frontingType}.json)
+            currentUUID=$(jq -r '.inbounds[0].users[0].uuid // empty' "${configPath}${frontingType}.json" 2>/dev/null)
+            currentClients=$(jq -r '.inbounds[0].users // empty' "${configPath}${frontingType}.json" 2>/dev/null)
         else
-            currentUUID=$(jq -r .inbounds[0].users[0].uuid ${configPath}${frontingTypeReality}.json)
-            currentClients=$(jq -r .inbounds[0].users ${configPath}${frontingTypeReality}.json)
+            currentUUID=$(jq -r '.inbounds[0].users[0].uuid // empty' "${configPath}${frontingTypeReality}.json" 2>/dev/null)
+            currentClients=$(jq -r '.inbounds[0].users // empty' "${configPath}${frontingTypeReality}.json" 2>/dev/null)
         fi
     fi
 
@@ -1460,7 +1460,7 @@ readConfigHostPathUUID() {
     if [[ -n "${configPath}" && -n "${frontingType}" ]]; then
         if [[ "${coreInstallType}" == "1" ]]; then
             local fallback
-            fallback=$(jq -r -c '.inbounds[0].settings.fallbacks[]|select(.path)' ${configPath}${frontingType}.json | head -1)
+            fallback=$(jq -r -c '.inbounds[0].settings.fallbacks[]|select(.path) // empty' "${configPath}${frontingType}.json" 2>/dev/null | head -1)
 
             local path
             path=$(echo "${fallback}" | jq -r .path | awk -F "[/]" '{print $2}')
@@ -7127,7 +7127,7 @@ listScriptVersions() {
     # 列出 GitHub 历史版本
     echoContent skyBlue "------------------------$(t SCRIPT_ROLLBACK_GITHUB)----------------------------"
     local githubVersions
-    githubVersions=$(curl -s "https://api.github.com/repos/Lynthar/Proxy-agent/releases?per_page=5" 2>/dev/null | jq -r '.[].tag_name' 2>/dev/null)
+    githubVersions=$(curl -s "https://api.github.com/repos/lyy0709/Proxy-agent/releases?per_page=5" 2>/dev/null | jq -r '.[].tag_name' 2>/dev/null)
 
     if [[ -n "${githubVersions}" && "${githubVersions}" != "null" ]]; then
         while IFS= read -r version; do
@@ -7156,7 +7156,7 @@ listScriptVersions() {
 rollbackScript() {
     local installDir="/etc/Proxy-agent"
     local backupDir="${installDir}/backup"
-    local rawBase="https://raw.githubusercontent.com/Lynthar/Proxy-agent"
+    local rawBase="https://raw.githubusercontent.com/lyy0709/Proxy-agent"
 
     # 获取版本列表
     local versionListStr
@@ -7340,7 +7340,7 @@ updateV2RayAgent() {
 
     local installDir="/etc/Proxy-agent"
     local latestVersion=""
-    local rawBase="https://raw.githubusercontent.com/Lynthar/Proxy-agent/master"
+    local rawBase="https://raw.githubusercontent.com/lyy0709/Proxy-agent/master"
 
     # 检查 GitHub Release 最新版本
     echoContent yellow " ---> 检查最新版本..."
@@ -8472,12 +8472,12 @@ warpRoutingReg() {
 
 # 链式代理主菜单
 chainProxyMenu() {
-    echoContent skyBlue "\n功能: 链式代理管理"
+    echoContent skyBlue "\n$(t CHAIN_MENU_TITLE)"
     echoContent red "\n=============================================================="
-    echoContent yellow "# 链式代理说明"
-    echoContent yellow "# 用于在多台境外VPS之间建立加密转发链路"
-    echoContent yellow "# 支持多层中继: 入口 → 中继1 → 中继2 → ... → 出口 → 互联网"
-    echoContent yellow "# 使用 Shadowsocks 2022 协议，加密安全、性能优秀\n"
+    echoContent yellow "$(t CHAIN_MENU_DESC_1)"
+    echoContent yellow "$(t CHAIN_MENU_DESC_2)"
+    echoContent yellow "$(t CHAIN_MENU_DESC_3)"
+    echoContent yellow "$(t CHAIN_MENU_DESC_4)\n"
 
     echoContent yellow "1.$(t CHAIN_MENU_WIZARD) [$(t RECOMMENDED)]"
     echoContent yellow "2.$(t CHAIN_MENU_STATUS)"
@@ -8512,26 +8512,25 @@ chainProxyMenu() {
 
 # 链式代理配置向导
 chainProxyWizard() {
-    echoContent skyBlue "\n链式代理配置向导"
+    echoContent skyBlue "\n$(t CHAIN_WIZARD_TITLE)"
     echoContent red "\n=============================================================="
-    echoContent yellow "请选择本机角色:\n"
-    echoContent yellow "1.出口节点 (Exit) - 链路终点，直接访问互联网"
-    echoContent yellow "  └─ 生成配置码，供中继或入口节点导入"
+    echoContent yellow "$(t PROMPT_SELECT):\n"
+    echoContent yellow "1.$(t CHAIN_WIZARD_EXIT)"
+    echoContent yellow "  └─ $(t CHAIN_WIZARD_EXIT_DESC)"
     echoContent yellow ""
-    echoContent yellow "2.中继节点 (Relay) - 链路中间节点，转发流量"
-    echoContent yellow "  └─ 导入下游配置码，生成新配置码供上游使用"
-    echoContent yellow "  └─ 支持多层中继: 入口→中继1→中继2→...→出口"
+    echoContent yellow "2.$(t CHAIN_WIZARD_RELAY)"
+    echoContent yellow "  └─ $(t CHAIN_WIZARD_RELAY_DESC)"
     echoContent yellow ""
-    echoContent yellow "3.入口节点 (Entry) - 单链路模式"
-    echoContent yellow "  └─ 导入出口或中继节点的配置码"
+    echoContent yellow "3.$(t CHAIN_WIZARD_ENTRY_CODE)"
+    echoContent yellow "  └─ $(t CHAIN_WIZARD_ENTRY_CODE_DESC)"
     echoContent yellow ""
-    echoContent yellow "4.入口节点 (Entry) - 多链路分流模式"
-    echoContent yellow "  └─ 配置多条链路，按规则分流到不同出口"
+    echoContent yellow "4.$(t CHAIN_WIZARD_ENTRY_MULTI)"
+    echoContent yellow "  └─ $(t CHAIN_WIZARD_ENTRY_MULTI_DESC)"
     echoContent yellow ""
-    echoContent yellow "5.手动配置入口节点"
-    echoContent yellow "  └─ 手动输入出口节点信息 (仅支持单跳)"
+    echoContent yellow "5.$(t CHAIN_WIZARD_ENTRY_MANUAL)"
+    echoContent yellow "  └─ $(t CHAIN_WIZARD_ENTRY_MANUAL_DESC)"
 
-    read -r -p "请选择:" selectType
+    read -r -p "$(t PROMPT_SELECT):" selectType
 
     case ${selectType} in
     1)
@@ -8703,7 +8702,7 @@ getChainPublicIP() {
 
 # 配置出口节点 (Exit)
 setupChainExit() {
-    echoContent skyBlue "\n配置出口节点 (Exit)"
+    echoContent skyBlue "\n$(t CHAIN_SETUP_EXIT_TITLE)"
     echoContent red "\n=============================================================="
 
     # 确保 sing-box 已安装
@@ -8713,8 +8712,8 @@ setupChainExit() {
 
     # 检查是否已存在链式代理入站
     if [[ -f "/etc/Proxy-agent/sing-box/conf/config/chain_inbound.json" ]]; then
-        echoContent yellow "\n检测到已存在链式代理配置"
-        read -r -p "是否覆盖现有配置？[y/n]:" confirmOverwrite
+        echoContent yellow "\n$(t CHAIN_EXISTING_CONFIG)"
+        read -r -p "$(t PROMPT_OVERWRITE)" confirmOverwrite
         if [[ "${confirmOverwrite}" != "y" ]]; then
             # 显示现有配置码
             showExistingChainCode
@@ -8725,11 +8724,11 @@ setupChainExit() {
     # 生成随机端口 (10000-60000)
     local chainPort
     chainPort=$(randomNum 10000 60000)
-    echoContent yellow "\n请输入链式代理端口 [回车使用随机端口: ${chainPort}]"
-    read -r -p "端口:" inputPort
+    echoContent yellow "\n$(t CHAIN_INPUT_PORT) [$(t CHAIN_INPUT_PORT_RANDOM): ${chainPort}]"
+    read -r -p "$(t PORT):" inputPort
     if [[ -n "${inputPort}" ]]; then
         if [[ ! "${inputPort}" =~ ^[0-9]+$ ]] || [[ "${inputPort}" -lt 1 ]] || [[ "${inputPort}" -gt 65535 ]]; then
-            echoContent red " ---> 端口格式错误"
+            echoContent red " ---> $(t PORT_INVALID)"
             return 1
         fi
         chainPort=${inputPort}
@@ -8738,7 +8737,7 @@ setupChainExit() {
     # 生成密钥
     local chainKey
     chainKey=$(generateChainKey)
-    echoContent green "\n ---> 已生成随机密钥"
+    echoContent green "\n ---> $(t STATUS_SUCCESS)"
 
     # 加密方法
     local chainMethod="2022-blake3-aes-128-gcm"
@@ -8747,62 +8746,62 @@ setupChainExit() {
     local publicIP
     publicIP=$(getChainPublicIP)
     if [[ -z "${publicIP}" ]]; then
-        echoContent yellow "\n无法自动获取公网IP，请手动输入"
-        read -r -p "公网IP:" publicIP
+        echoContent yellow "\n$(t CHAIN_CANNOT_GET_IP)"
+        read -r -p "$(t CHAIN_PUBLIC_IP):" publicIP
         if [[ -z "${publicIP}" ]]; then
-            echoContent red " ---> IP不能为空"
+            echoContent red " ---> $(t ERR_IP_GET)"
             return 1
         fi
         if ! isValidIP "${publicIP}"; then
-            echoContent red " ---> IP地址格式无效"
+            echoContent red " ---> $(t STATUS_INVALID)"
             return 1
         fi
     fi
-    echoContent green " ---> 本机公网IP: ${publicIP}"
+    echoContent green " ---> $(t CHAIN_PUBLIC_IP): ${publicIP}"
 
     # 询问是否限制入口IP
-    echoContent yellow "\n是否限制只允许特定IP连接？(提高安全性)"
-    echoContent yellow "1.不限制 [回车默认]"
-    echoContent yellow "2.限制特定IP"
-    read -r -p "请选择:" limitIPChoice
+    echoContent yellow "\n$(t CHAIN_LIMIT_IP_QUESTION)"
+    echoContent yellow "1.$(t CHAIN_LIMIT_IP_NO) [$(t DEFAULT)]"
+    echoContent yellow "2.$(t CHAIN_LIMIT_IP_YES)"
+    read -r -p "$(t PROMPT_SELECT):" limitIPChoice
 
     local allowedIP=""
     if [[ "${limitIPChoice}" == "2" ]]; then
-        read -r -p "请输入允许连接的入口节点IP:" allowedIP
+        read -r -p "$(t CHAIN_LIMIT_ALLOW):" allowedIP
         if [[ -z "${allowedIP}" ]]; then
-            echoContent red " ---> IP不能为空"
+            echoContent red " ---> $(t ERR_IP_GET)"
             return 1
         fi
         if ! isValidIP "${allowedIP}"; then
-            echoContent red " ---> IP地址格式无效"
+            echoContent red " ---> $(t STATUS_INVALID)"
             return 1
         fi
     fi
 
     # 询问网络策略（IPv4/IPv6）
-    echoContent yellow "\n选择出站网络策略："
-    echoContent yellow "1.优先IPv4 [回车默认] - 推荐：出口机只有IPv4或网络不稳定时使用"
-    echoContent yellow "2.优先IPv6 - 出口机双栈且希望优先使用IPv6"
-    echoContent yellow "3.双栈自动 - 出口机双栈，按DNS返回顺序连接"
-    read -r -p "请选择:" networkStrategyChoice
+    echoContent yellow "\n$(t CHAIN_NETWORK_STRATEGY):"
+    echoContent yellow "1.$(t CHAIN_NETWORK_IPV4) [$(t DEFAULT)]"
+    echoContent yellow "2.$(t CHAIN_NETWORK_IPV6)"
+    echoContent yellow "3.$(t CHAIN_NETWORK_DUAL)"
+    read -r -p "$(t PROMPT_SELECT):" networkStrategyChoice
 
     local domainStrategy="prefer_ipv4"
-    local strategyDesc="优先IPv4"
+    local strategyDesc="$(t CHAIN_NETWORK_IPV4)"
     case "${networkStrategyChoice}" in
         2)
             domainStrategy="prefer_ipv6"
-            strategyDesc="优先IPv6"
+            strategyDesc="$(t CHAIN_NETWORK_IPV6)"
             ;;
         3)
             domainStrategy=""
-            strategyDesc="双栈自动"
+            strategyDesc="$(t CHAIN_NETWORK_DUAL)"
             ;;
         *)
             domainStrategy="prefer_ipv4"
-            strategyDesc="优先IPv4"
+            strategyDesc="$(t CHAIN_NETWORK_IPV4)"
             ;;
     esac
-    echoContent green " ---> 网络策略: ${strategyDesc}"
+    echoContent green " ---> $(t CHAIN_NETWORK_STRATEGY): ${strategyDesc}"
 
     # 创建入站配置
     # 启用 sniff 嗅探 TLS/HTTP 域名，配合 domain_strategy 进行智能路由
@@ -9076,14 +9075,14 @@ parseChainCode() {
 
 # 通过配置码配置入口节点
 setupChainEntryByCode() {
-    echoContent skyBlue "\n配置入口节点 (Entry) - 配置码模式"
+    echoContent skyBlue "\n$(t CHAIN_SETUP_ENTRY_CODE_TITLE)"
     echoContent red "\n=============================================================="
 
-    echoContent yellow "请粘贴出口或中继节点的配置码:"
-    read -r -p "配置码:" chainCode
+    echoContent yellow "$(t CHAIN_PASTE_CODE):"
+    read -r -p "$(t CHAIN_CODE):" chainCode
 
     if [[ -z "${chainCode}" ]]; then
-        echoContent red " ---> 配置码不能为空"
+        echoContent red " ---> $(t ERR_NOT_EMPTY "$(t CHAIN_CODE)")"
         return 1
     fi
 
@@ -9104,33 +9103,33 @@ setupChainEntryByCode() {
 
 # 手动配置入口节点
 setupChainEntryManual() {
-    echoContent skyBlue "\n配置入口节点 (Entry) - 手动模式"
+    echoContent skyBlue "\n$(t CHAIN_SETUP_ENTRY_MANUAL_TITLE)"
     echoContent red "\n=============================================================="
 
-    read -r -p "出口节点IP:" chainExitIP
+    read -r -p "$(t CHAIN_EXIT_IP):" chainExitIP
     if [[ -z "${chainExitIP}" ]]; then
-        echoContent red " ---> IP不能为空"
+        echoContent red " ---> $(t ERR_IP_GET)"
         return 1
     fi
     if ! isValidIP "${chainExitIP}"; then
-        echoContent red " ---> IP地址格式无效"
+        echoContent red " ---> $(t STATUS_INVALID)"
         return 1
     fi
 
-    read -r -p "出口节点端口:" chainExitPort
+    read -r -p "$(t CHAIN_EXIT_PORT):" chainExitPort
     if [[ -z "${chainExitPort}" ]]; then
-        echoContent red " ---> 端口不能为空"
+        echoContent red " ---> $(t PORT_EMPTY)"
         return 1
     fi
 
-    read -r -p "密钥:" chainExitKey
+    read -r -p "$(t CHAIN_EXIT_KEY):" chainExitKey
     if [[ -z "${chainExitKey}" ]]; then
-        echoContent red " ---> 密钥不能为空"
+        echoContent red " ---> $(t ERR_NOT_EMPTY "$(t CHAIN_EXIT_KEY)")"
         return 1
     fi
 
-    echoContent yellow "\n加密方式 [回车默认: 2022-blake3-aes-128-gcm]"
-    read -r -p "加密方式:" chainExitMethod
+    echoContent yellow "\n$(t CHAIN_EXIT_METHOD) [$(t DEFAULT): 2022-blake3-aes-128-gcm]"
+    read -r -p "$(t CHAIN_EXIT_METHOD):" chainExitMethod
     if [[ -z "${chainExitMethod}" ]]; then
         chainExitMethod="2022-blake3-aes-128-gcm"
     fi
@@ -9141,11 +9140,11 @@ setupChainEntryManual() {
 # 配置中继节点 (Relay)
 # 中继节点同时作为上游的"出口"（接收流量）和下游的"入口"（转发流量）
 setupChainRelay() {
-    echoContent skyBlue "\n配置中继节点 (Relay)"
+    echoContent skyBlue "\n$(t CHAIN_SETUP_RELAY_TITLE)"
     echoContent red "\n=============================================================="
-    echoContent yellow "中继节点工作原理:"
-    echoContent yellow "  上游节点 → [本机] → 下游节点 → ... → 出口 → 互联网"
-    echoContent yellow "  本机将接收上游流量并转发到下游链路\n"
+    echoContent yellow "$(t CHAIN_SETUP_RELAY_DESC_1)"
+    echoContent yellow "$(t CHAIN_SETUP_RELAY_DESC_2)"
+    echoContent yellow "$(t CHAIN_SETUP_RELAY_DESC_3)\n"
 
     # 确保 sing-box 已安装
     if ! ensureSingBoxInstalled; then
@@ -9155,20 +9154,20 @@ setupChainRelay() {
     # 检查是否已存在链式代理配置
     if [[ -f "/etc/Proxy-agent/sing-box/conf/config/chain_inbound.json" ]] || \
        [[ -f "/etc/Proxy-agent/sing-box/conf/config/chain_outbound.json" ]]; then
-        echoContent yellow "\n检测到已存在链式代理配置"
-        read -r -p "是否覆盖现有配置？[y/n]:" confirmOverwrite
+        echoContent yellow "\n$(t CHAIN_EXISTING_CONFIG)"
+        read -r -p "$(t PROMPT_OVERWRITE)" confirmOverwrite
         if [[ "${confirmOverwrite}" != "y" ]]; then
             return 0
         fi
     fi
 
     # 步骤1: 导入下游配置码
-    echoContent yellow "步骤 1/3: 导入下游节点配置码"
-    echoContent yellow "请粘贴下游节点（出口或其他中继）的配置码:"
-    read -r -p "配置码:" downstreamCode
+    echoContent yellow "$(t CHAIN_STEP_1_3): $(t CHAIN_STEP_IMPORT)"
+    echoContent yellow "$(t CHAIN_PASTE_DOWNSTREAM):"
+    read -r -p "$(t CHAIN_CODE):" downstreamCode
 
     if [[ -z "${downstreamCode}" ]]; then
-        echoContent red " ---> 配置码不能为空"
+        echoContent red " ---> $(t ERR_NOT_EMPTY "$(t CHAIN_CODE)")"
         return 1
     fi
 
@@ -9180,16 +9179,16 @@ setupChainRelay() {
     # chainHops 现在包含下游所有节点
 
     # 步骤2: 配置本机监听
-    echoContent yellow "\n步骤 2/3: 配置本机监听端口"
+    echoContent yellow "\n$(t CHAIN_STEP_2_3): $(t CHAIN_STEP_PORT)"
 
     # 生成随机端口 (10000-60000)
     local chainPort
     chainPort=$(randomNum 10000 60000)
-    echoContent yellow "请输入本机链式代理端口 [回车使用随机端口: ${chainPort}]"
-    read -r -p "端口:" inputPort
+    echoContent yellow "$(t CHAIN_INPUT_PORT) [$(t CHAIN_INPUT_PORT_RANDOM): ${chainPort}]"
+    read -r -p "$(t PORT):" inputPort
     if [[ -n "${inputPort}" ]]; then
         if [[ ! "${inputPort}" =~ ^[0-9]+$ ]] || [[ "${inputPort}" -lt 1 ]] || [[ "${inputPort}" -gt 65535 ]]; then
-            echoContent red " ---> 端口格式错误"
+            echoContent red " ---> $(t PORT_INVALID)"
             return 1
         fi
         chainPort=${inputPort}
@@ -9914,7 +9913,7 @@ EOF
 
 # 查看链路状态
 showChainStatus() {
-    echoContent skyBlue "\n链式代理状态"
+    echoContent skyBlue "\n$(t CHAIN_STATUS_TITLE)"
     echoContent red "\n=============================================================="
 
     # 检查是否为多链路模式
@@ -9923,35 +9922,35 @@ showChainStatus() {
         return $?
     fi
 
-    local role="未配置"
+    local role="$(t CHAIN_NOT_CONFIGURED)"
     local exitIP=""
     local exitPort=""
-    local status="❌ 未配置"
+    local status="❌ $(t CHAIN_NOT_CONFIGURED)"
 
     # 检查是否为出口节点
     if [[ -f "/etc/Proxy-agent/sing-box/conf/chain_exit_info.json" ]]; then
-        role="出口节点 (Exit)"
+        role="$(t CHAIN_ROLE_EXIT)"
         local ip port
-        ip=$(jq -r '.ip' /etc/Proxy-agent/sing-box/conf/chain_exit_info.json)
-        port=$(jq -r '.port' /etc/Proxy-agent/sing-box/conf/chain_exit_info.json)
+        ip=$(jq -r '.ip // empty' /etc/Proxy-agent/sing-box/conf/chain_exit_info.json 2>/dev/null)
+        port=$(jq -r '.port // empty' /etc/Proxy-agent/sing-box/conf/chain_exit_info.json 2>/dev/null)
         local allowedIP
-        allowedIP=$(jq -r '.allowed_ip' /etc/Proxy-agent/sing-box/conf/chain_exit_info.json)
+        allowedIP=$(jq -r '.allowed_ip // empty' /etc/Proxy-agent/sing-box/conf/chain_exit_info.json 2>/dev/null)
 
         # 检查 sing-box 是否运行
         if pgrep -x "sing-box" >/dev/null 2>&1; then
-            status="✅ 运行中"
+            status="✅ $(t CHAIN_RUNNING)"
         else
-            status="❌ 未运行"
+            status="❌ $(t CHAIN_NOT_RUNNING)"
         fi
 
         echoContent green "╔══════════════════════════════════════════════════════════════╗"
-        echoContent green "║                      链式代理状态                              ║"
+        echoContent green "║                      $(t CHAIN_STATUS_TITLE)                              ║"
         echoContent green "╠══════════════════════════════════════════════════════════════╣"
-        echoContent yellow "  当前角色: ${role}"
-        echoContent yellow "  监听端口: ${port}"
-        echoContent yellow "  本机IP: ${ip}"
-        echoContent yellow "  允许连接: ${allowedIP:-所有IP}"
-        echoContent yellow "  运行状态: ${status}"
+        echoContent yellow "  $(t CHAIN_ROLE_EXIT): ${role}"
+        echoContent yellow "  $(t PORT): ${port}"
+        echoContent yellow "  IP: ${ip}"
+        echoContent yellow "  $(t CHAIN_LIMIT_ALLOW): ${allowedIP:-$(t CHAIN_LIMIT_IP_NO)}"
+        echoContent yellow "  $(t STATUS_RUNNING): ${status}"
         echoContent green "╚══════════════════════════════════════════════════════════════╝"
 
         # 显示配置码
@@ -9959,19 +9958,19 @@ showChainStatus() {
 
     # 检查是否为中继节点
     elif [[ -f "/etc/Proxy-agent/sing-box/conf/chain_relay_info.json" ]]; then
-        role="中继节点 (Relay)"
+        role="$(t CHAIN_ROLE_RELAY)"
         local ip port totalHops
-        ip=$(jq -r '.ip' /etc/Proxy-agent/sing-box/conf/chain_relay_info.json)
-        port=$(jq -r '.port' /etc/Proxy-agent/sing-box/conf/chain_relay_info.json)
-        totalHops=$(jq -r '.total_hops' /etc/Proxy-agent/sing-box/conf/chain_relay_info.json)
+        ip=$(jq -r '.ip // empty' /etc/Proxy-agent/sing-box/conf/chain_relay_info.json 2>/dev/null)
+        port=$(jq -r '.port // empty' /etc/Proxy-agent/sing-box/conf/chain_relay_info.json 2>/dev/null)
+        totalHops=$(jq -r '.total_hops // empty' /etc/Proxy-agent/sing-box/conf/chain_relay_info.json 2>/dev/null)
         local downstreamHops
-        downstreamHops=$(jq -r '.downstream_hops' /etc/Proxy-agent/sing-box/conf/chain_relay_info.json)
+        downstreamHops=$(jq -r '.downstream_hops // empty' /etc/Proxy-agent/sing-box/conf/chain_relay_info.json 2>/dev/null)
 
         # 检查 sing-box 是否运行
         if pgrep -x "sing-box" >/dev/null 2>&1; then
-            status="✅ 运行中"
+            status="✅ $(t CHAIN_RUNNING)"
         else
-            status="❌ 未运行"
+            status="❌ $(t CHAIN_NOT_RUNNING)"
         fi
 
         echoContent green "╔══════════════════════════════════════════════════════════════╗"
@@ -10100,7 +10099,7 @@ testChainConnection() {
         return $?
     fi
 
-    echoContent skyBlue "\n测试链路连通性"
+    echoContent skyBlue "\n$(t CHAIN_TEST_TITLE)"
     echoContent red "\n=============================================================="
 
     # 确定节点角色并获取首跳信息
@@ -10111,38 +10110,38 @@ testChainConnection() {
     if [[ -f "/etc/Proxy-agent/sing-box/conf/chain_entry_info.json" ]]; then
         role="entry"
         local mode
-        mode=$(jq -r '.mode // "single_hop"' /etc/Proxy-agent/sing-box/conf/chain_entry_info.json)
+        mode=$(jq -r '.mode // "single_hop"' /etc/Proxy-agent/sing-box/conf/chain_entry_info.json 2>/dev/null)
 
         if [[ "${mode}" == "multi_hop" ]]; then
             # 多跳模式，获取第一跳
-            firstHopIP=$(jq -r '.hops[0].ip' /etc/Proxy-agent/sing-box/conf/chain_entry_info.json)
-            firstHopPort=$(jq -r '.hops[0].port' /etc/Proxy-agent/sing-box/conf/chain_entry_info.json)
+            firstHopIP=$(jq -r '.hops[0].ip // empty' /etc/Proxy-agent/sing-box/conf/chain_entry_info.json 2>/dev/null)
+            firstHopPort=$(jq -r '.hops[0].port // empty' /etc/Proxy-agent/sing-box/conf/chain_entry_info.json 2>/dev/null)
         else
             # 单跳模式
-            firstHopIP=$(jq -r '.exit_ip' /etc/Proxy-agent/sing-box/conf/chain_entry_info.json)
-            firstHopPort=$(jq -r '.exit_port' /etc/Proxy-agent/sing-box/conf/chain_entry_info.json)
+            firstHopIP=$(jq -r '.exit_ip // empty' /etc/Proxy-agent/sing-box/conf/chain_entry_info.json 2>/dev/null)
+            firstHopPort=$(jq -r '.exit_port // empty' /etc/Proxy-agent/sing-box/conf/chain_entry_info.json 2>/dev/null)
         fi
 
     elif [[ -f "/etc/Proxy-agent/sing-box/conf/chain_relay_info.json" ]]; then
         role="relay"
         # 中继节点获取下游第一跳
-        firstHopIP=$(jq -r '.downstream_hops[0].ip' /etc/Proxy-agent/sing-box/conf/chain_relay_info.json)
-        firstHopPort=$(jq -r '.downstream_hops[0].port' /etc/Proxy-agent/sing-box/conf/chain_relay_info.json)
+        firstHopIP=$(jq -r '.downstream_hops[0].ip // empty' /etc/Proxy-agent/sing-box/conf/chain_relay_info.json 2>/dev/null)
+        firstHopPort=$(jq -r '.downstream_hops[0].port // empty' /etc/Proxy-agent/sing-box/conf/chain_relay_info.json 2>/dev/null)
 
     elif [[ -f "/etc/Proxy-agent/sing-box/conf/chain_exit_info.json" ]]; then
         role="exit"
-        echoContent yellow "当前为出口节点，无需测试链路"
-        echoContent yellow "请在入口节点测试连通性"
+        echoContent yellow "$(t CHAIN_TEST_EXIT_NOTICE)"
+        echoContent yellow "$(t CHAIN_TEST_EXIT_HINT)"
 
         # 测试出口节点自身网络
-        echoContent yellow "\n测试出口节点网络..."
+        echoContent yellow "\n$(t CHAIN_TEST_NETWORK)"
         local testIP
         testIP=$(curl -s --connect-timeout 5 https://api.ipify.org 2>/dev/null)
         if [[ -n "${testIP}" ]]; then
-            echoContent green "✅ 出口节点网络正常"
-            echoContent green "   出口IP: ${testIP}"
+            echoContent green "✅ $(t CHAIN_TEST_SUCCESS)"
+            echoContent green "   IP: ${testIP}"
         else
-            echoContent red "❌ 出口节点网络异常"
+            echoContent red "❌ $(t CHAIN_TEST_FAILED)"
         fi
         return 0
     else
@@ -10209,15 +10208,15 @@ chainProxyAdvanced() {
         return $?
     fi
 
-    echoContent skyBlue "\n链式代理高级设置"
+    echoContent skyBlue "\n$(t CHAIN_ADVANCED_TITLE)"
     echoContent red "\n=============================================================="
 
-    echoContent yellow "1.显示配置码 (出口/中继节点)"
-    echoContent yellow "2.更新密钥"
-    echoContent yellow "3.修改端口"
-    echoContent yellow "4.查看详细配置"
+    echoContent yellow "1.$(t CHAIN_ADVANCED_REGENERATE)"
+    echoContent yellow "2.$(t CHAIN_ADVANCED_MODIFY_PORT)"
+    echoContent yellow "3.$(t CHAIN_ADVANCED_MODIFY_LIMIT)"
+    echoContent yellow "4.$(t CHAIN_ADVANCED_VIEW_CONFIG)"
 
-    read -r -p "请选择:" selectType
+    read -r -p "$(t PROMPT_SELECT):" selectType
 
     case ${selectType} in
     1)
@@ -10226,7 +10225,7 @@ chainProxyAdvanced() {
         elif [[ -f "/etc/Proxy-agent/sing-box/conf/chain_relay_info.json" ]]; then
             showRelayChainCode
         else
-            echoContent red " ---> 当前不是出口或中继节点"
+            echoContent red " ---> $(t CHAIN_NOT_CONFIGURED)"
         fi
         ;;
     2)
@@ -10373,7 +10372,7 @@ showChainDetailConfig() {
 
 # 卸载链式代理
 removeChainProxy() {
-    echoContent skyBlue "\n卸载链式代理"
+    echoContent skyBlue "\n$(t CHAIN_UNINSTALL_TITLE)"
     echoContent red "\n=============================================================="
 
     # 检测链式代理模式
@@ -10384,18 +10383,18 @@ removeChainProxy() {
         isMultiChain=true
         local chainCount
         chainCount=$(jq -r '.chains | length' /etc/Proxy-agent/sing-box/conf/chain_multi_info.json 2>/dev/null || echo "0")
-        echoContent yellow "\n检测到多链路分流模式，共 ${chainCount} 条链路"
+        echoContent yellow "\n$(t CHAIN_UNINSTALL_MULTI "${chainCount}")"
     elif [[ -f "/etc/Proxy-agent/sing-box/conf/chain_entry_info.json" ]] || \
          [[ -f "/etc/Proxy-agent/sing-box/conf/chain_exit_info.json" ]] || \
          [[ -f "/etc/Proxy-agent/sing-box/conf/chain_relay_info.json" ]]; then
         isSingleChain=true
-        echoContent yellow "\n检测到单链路模式"
+        echoContent yellow "\n$(t CHAIN_UNINSTALL_SINGLE)"
     else
-        echoContent red "\n未检测到链式代理配置"
+        echoContent red "\n$(t CHAIN_NOT_CONFIGURED)"
         return 0
     fi
 
-    read -r -p "确认卸载链式代理？[y/n]:" confirmRemove
+    read -r -p "$(t CHAIN_UNINSTALL_CONFIRM) [y/n]:" confirmRemove
     if [[ "${confirmRemove}" != "y" ]]; then
         return 0
     fi
@@ -15214,7 +15213,7 @@ menu() {
         echoContent green "$(t MENU_VERSION): ${versionDisplay}"
     fi
 
-    echoContent green "$(t MENU_GITHUB): https://github.com/Lynthar/Proxy-agent"
+    echoContent green "$(t MENU_GITHUB): https://github.com/lyy0709/Proxy-agent"
     echoContent green "$(t MENU_DESC): $(t MENU_TITLE)"
     showInstallStatus
     checkWgetShowProgress

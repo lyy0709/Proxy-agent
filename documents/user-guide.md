@@ -58,7 +58,7 @@ sudo -i
 复制以下命令，粘贴到终端中并回车执行：
 
 ```bash
-wget -P /root -N https://raw.githubusercontent.com/Lynthar/Proxy-agent/master/install.sh && chmod 700 /root/install.sh && /root/install.sh
+wget -P /root -N https://raw.githubusercontent.com/lyy0709/Proxy-agent/master/install.sh && chmod 700 /root/install.sh && /root/install.sh
 ```
 
 > **网络问题？** 如果下载失败，可能是您的服务器无法访问 GitHub。可以尝试使用加速镜像或手动上传脚本文件。
@@ -678,7 +678,7 @@ tar -czvf proxy-backup.tar.gz /etc/Proxy-agent/
 
 如果您遇到本指南无法解决的问题：
 
-1. **查看项目 GitHub**：https://github.com/Lynthar/Proxy-agent
+1. **查看项目 GitHub**：https://github.com/lyy0709/Proxy-agent
 2. **提交 Issue**：在 GitHub 上描述您的问题
 3. **查看日志**：大多数问题都可以通过查看日志找到原因
 

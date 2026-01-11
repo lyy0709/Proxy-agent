@@ -185,8 +185,8 @@ readonly XRAY_ERROR_LOG="${V2RAY_AGENT_DIR}/xray/error.log"
 # ============================================================================
 
 : "${SCRIPT_VERSION:=(initial)}"  # 默认版本标识，如果未从VERSION文件加载
-readonly SCRIPT_AUTHOR="Lynthar"
-readonly SCRIPT_REPO="https://github.com/Lynthar/Proxy-agent"
+readonly SCRIPT_AUTHOR="lyy0709"
+readonly SCRIPT_REPO="https://github.com/lyy0709/Proxy-agent"
 
 # ============================================================================
 # 注意: 协议辅助函数已移至 protocol-registry.sh

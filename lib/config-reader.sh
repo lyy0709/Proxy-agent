@@ -99,6 +99,25 @@ getCoreBinaryPath() {
 # 协议配置读取
 # ============================================================================
 
+# 验证协议ID有效性
+# 参数: $1 - 协议ID
+# 返回: 0=有效, 1=无效
+_isValidProtocolId() {
+    local protocolId="$1"
+
+    # 检查是否为数字
+    if [[ ! "${protocolId}" =~ ^[0-9]+$ ]]; then
+        return 1
+    fi
+
+    # 检查范围 (0-20 是当前定义的协议ID范围)
+    if (( protocolId < 0 || protocolId > 20 )); then
+        return 1
+    fi
+
+    return 0
+}
+
 # 读取协议端口
 # 参数: $1 - 协议ID
 #       $2 - 配置目录路径 (可选)
@@ -108,6 +127,11 @@ readProtocolPort() {
     local protocolId="$1"
     local cfgPath="${2:-}"
     local coreType="${3:-}"
+
+    # 参数验证
+    if [[ -z "${protocolId}" ]] || ! _isValidProtocolId "${protocolId}"; then
+        return 1
+    fi
 
     [[ -z "${cfgPath}" ]] && cfgPath=$(getConfigPath "${coreType}")
     [[ -z "${cfgPath}" ]] && return 1
@@ -134,13 +158,19 @@ readProtocolClients() {
     local cfgPath="${2:-}"
     local coreType="${3:-}"
 
+    # 参数验证
+    if [[ -z "${protocolId}" ]] || ! _isValidProtocolId "${protocolId}"; then
+        echo "[]"
+        return 1
+    fi
+
     [[ -z "${cfgPath}" ]] && cfgPath=$(getConfigPath "${coreType}")
     [[ -z "${coreType}" ]] && coreType=$(detectCoreType)
-    [[ -z "${cfgPath}" ]] && return 1
+    [[ -z "${cfgPath}" ]] && { echo "[]"; return 1; }
 
     local configFile
     configFile="${cfgPath}$(getProtocolConfigFileName "${protocolId}" 2>/dev/null)"
-    [[ ! -f "${configFile}" ]] && return 1
+    [[ ! -f "${configFile}" ]] && { echo "[]"; return 1; }
 
     local clients
     if [[ "${coreType}" == "1" ]]; then
@@ -162,6 +192,12 @@ readProtocolClientCount() {
     local protocolId="$1"
     local cfgPath="${2:-}"
 
+    # 参数验证
+    if [[ -z "${protocolId}" ]] || ! _isValidProtocolId "${protocolId}"; then
+        echo "0"
+        return 1
+    fi
+
     local clients
     clients=$(readProtocolClients "${protocolId}" "${cfgPath}")
 
@@ -177,6 +213,16 @@ readProtocolClientByIndex() {
     local protocolId="$1"
     local index="$2"
     local cfgPath="${3:-}"
+
+    # 参数验证
+    if [[ -z "${protocolId}" ]] || ! _isValidProtocolId "${protocolId}"; then
+        return 1
+    fi
+
+    # 验证索引是有效数字
+    if [[ -z "${index}" || ! "${index}" =~ ^[0-9]+$ ]]; then
+        return 1
+    fi
 
     local clients
     clients=$(readProtocolClients "${protocolId}" "${cfgPath}")
@@ -194,11 +240,21 @@ readProtocolClientByUUID() {
     local uuid="$2"
     local cfgPath="${3:-}"
 
+    # 参数验证
+    if [[ -z "${protocolId}" ]] || ! _isValidProtocolId "${protocolId}"; then
+        return 1
+    fi
+
+    # 验证 UUID 参数
+    if [[ -z "${uuid}" ]]; then
+        return 1
+    fi
+
     local clients
     clients=$(readProtocolClients "${protocolId}" "${cfgPath}")
 
-    # 尝试多种字段名
-    echo "${clients}" | jq -c ".[] | select(.id == \"${uuid}\" or .uuid == \"${uuid}\" or .password == \"${uuid}\")" 2>/dev/null | head -1
+    # 尝试多种字段名 (使用 --arg 防止注入)
+    echo "${clients}" | jq -c --arg uuid "${uuid}" '.[] | select(.id == $uuid or .uuid == $uuid or .password == $uuid)' 2>/dev/null | head -1
 }
 
 # ============================================================================
@@ -271,6 +327,15 @@ readTLSKeyPath() {
 # Reality配置读取
 # ============================================================================
 
+# 验证是否为Reality协议
+# 参数: $1 - 协议ID
+# 返回: 0=是Reality协议, 1=不是
+_isRealityProtocol() {
+    local protocolId="$1"
+    # Reality协议ID: 7, 8, 12
+    [[ "${protocolId}" == "7" || "${protocolId}" == "8" || "${protocolId}" == "12" ]]
+}
+
 # 读取Reality公钥
 # 参数: $1 - 协议ID (7, 8, 或 12)
 #       $2 - 配置目录路径 (可选)
@@ -280,6 +345,16 @@ readRealityPublicKey() {
     local protocolId="$1"
     local cfgPath="${2:-}"
     local coreType="${3:-}"
+
+    # 参数验证
+    if [[ -z "${protocolId}" ]] || ! _isValidProtocolId "${protocolId}"; then
+        return 1
+    fi
+
+    # 验证是否为Reality协议
+    if ! _isRealityProtocol "${protocolId}"; then
+        return 1
+    fi
 
     [[ -z "${cfgPath}" ]] && cfgPath=$(getConfigPath "${coreType}")
     [[ -z "${coreType}" ]] && coreType=$(detectCoreType)
@@ -312,6 +387,16 @@ readRealityPrivateKey() {
     local cfgPath="${2:-}"
     local coreType="${3:-}"
 
+    # 参数验证
+    if [[ -z "${protocolId}" ]] || ! _isValidProtocolId "${protocolId}"; then
+        return 1
+    fi
+
+    # 验证是否为Reality协议
+    if ! _isRealityProtocol "${protocolId}"; then
+        return 1
+    fi
+
     [[ -z "${cfgPath}" ]] && cfgPath=$(getConfigPath "${coreType}")
     [[ -z "${coreType}" ]] && coreType=$(detectCoreType)
     [[ -z "${cfgPath}" ]] && return 1
@@ -343,6 +428,16 @@ readRealityServerName() {
     local cfgPath="${2:-}"
     local coreType="${3:-}"
 
+    # 参数验证
+    if [[ -z "${protocolId}" ]] || ! _isValidProtocolId "${protocolId}"; then
+        return 1
+    fi
+
+    # 验证是否为Reality协议
+    if ! _isRealityProtocol "${protocolId}"; then
+        return 1
+    fi
+
     [[ -z "${cfgPath}" ]] && cfgPath=$(getConfigPath "${coreType}")
     [[ -z "${coreType}" ]] && coreType=$(detectCoreType)
     [[ -z "${cfgPath}" ]] && return 1
@@ -370,12 +465,24 @@ readRealityShortIds() {
     local protocolId="$1"
     local cfgPath="${2:-}"
 
+    # 参数验证
+    if [[ -z "${protocolId}" ]] || ! _isValidProtocolId "${protocolId}"; then
+        echo "[]"
+        return 1
+    fi
+
+    # 验证是否为Reality协议
+    if ! _isRealityProtocol "${protocolId}"; then
+        echo "[]"
+        return 1
+    fi
+
     [[ -z "${cfgPath}" ]] && cfgPath=$(getConfigPath)
-    [[ -z "${cfgPath}" ]] && return 1
+    [[ -z "${cfgPath}" ]] && { echo "[]"; return 1; }
 
     local configFile
     configFile="${cfgPath}$(getProtocolConfigFileName "${protocolId}" 2>/dev/null)"
-    [[ ! -f "${configFile}" ]] && return 1
+    [[ ! -f "${configFile}" ]] && { echo "[]"; return 1; }
 
     jq -c '.inbounds[0].streamSettings.realitySettings.shortIds // []' "${configFile}" 2>/dev/null
 }

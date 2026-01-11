@@ -1,7 +1,7 @@
 # Proxy-agent
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-[![GitHub Release](https://img.shields.io/github/v/release/Lynthar/Proxy-agent?label=Release)](https://github.com/Lynthar/Proxy-agent/releases)
+[![GitHub Release](https://img.shields.io/github/v/release/lyy0709/Proxy-agent?label=Release)](https://github.com/lyy0709/Proxy-agent/releases)
 [![Tests](https://img.shields.io/badge/Tests-68%20passed-brightgreen)]()
 [![English](https://img.shields.io/badge/English-README-blue)](documents/en/README_EN.md)
 
@@ -10,7 +10,7 @@ Xray-core / sing-box 多协议代理一键安装脚本，基于 [v2ray-agent](ht
 ## 快速安装
 
 ```bash
-wget -P /root -N https://raw.githubusercontent.com/Lynthar/Proxy-agent/master/install.sh && chmod 700 /root/install.sh && /root/install.sh
+wget -P /root -N https://raw.githubusercontent.com/lyy0709/Proxy-agent/master/install.sh && chmod 700 /root/install.sh && /root/install.sh
 ```
 
 **安装后使用 `pasly` 命令打开管理菜单**

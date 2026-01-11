@@ -1,7 +1,7 @@
 # Proxy-agent
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-[![GitHub Release](https://img.shields.io/github/v/release/Lynthar/Proxy-agent?label=Release)](https://github.com/Lynthar/Proxy-agent/releases)
+[![GitHub Release](https://img.shields.io/github/v/release/lyy0709/Proxy-agent?label=Release)](https://github.com/lyy0709/Proxy-agent/releases)
 [![中文](https://img.shields.io/badge/中文-README-blue)](../../README.md)
 
 A fork of [v2ray-agent](https://github.com/mack-a/v2ray-agent), providing one-click installation and management for Xray-core / sing-box.
@@ -54,7 +54,7 @@ A fork of [v2ray-agent](https://github.com/mack-a/v2ray-agent), providing one-cl
 ### Installation
 
 ```bash
-wget -P /root -N https://raw.githubusercontent.com/Lynthar/Proxy-agent/master/install.sh && chmod 700 /root/install.sh && /root/install.sh
+wget -P /root -N https://raw.githubusercontent.com/lyy0709/Proxy-agent/master/install.sh && chmod 700 /root/install.sh && /root/install.sh
 ```
 
 ### Management
@@ -147,7 +147,7 @@ Language settings are saved to `/etc/Proxy-agent/lang_pref` and auto-loaded on s
 
 Issues and Pull Requests are welcome.
 
-- **Feedback**: [GitHub Issues](https://github.com/Lynthar/Proxy-agent/issues)
+- **Feedback**: [GitHub Issues](https://github.com/lyy0709/Proxy-agent/issues)
 
 ## Credits
 

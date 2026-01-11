@@ -115,20 +115,34 @@ killProcess() {
 
 handleXrayService() {
     local action="$1"
+    local maxWait=10
+    local waited=0
 
     case "${action}" in
         start)
             if ! isProcessRunning "xray/xray"; then
                 serviceControl "xray" "start"
-                sleep 0.8
 
-                if isProcessRunning "xray/xray"; then
-                    echoContent green " ---> Xray启动成功"
-                else
-                    echoContent red "Xray启动失败"
-                    echoContent red "请手动执行: /etc/Proxy-agent/xray/xray -confdir /etc/Proxy-agent/xray/conf"
-                    return 1
+                # 动态等待而不是固定等待
+                while (( waited < maxWait )); do
+                    if isProcessRunning "xray/xray"; then
+                        echoContent green " ---> Xray启动成功"
+                        return 0
+                    fi
+                    sleep 0.5
+                    ((waited++))
+                done
+
+                # 启动失败，提供诊断信息
+                echoContent red "Xray启动失败"
+                echoContent yellow "请手动执行检查:"
+                echoContent yellow "  /etc/Proxy-agent/xray/xray -confdir /etc/Proxy-agent/xray/conf"
+                # 尝试读取错误日志
+                if [[ -f "/etc/Proxy-agent/xray/error.log" ]]; then
+                    echoContent yellow "最近错误日志:"
+                    tail -5 /etc/Proxy-agent/xray/error.log 2>/dev/null
                 fi
+                return 1
             fi
             ;;
         stop)
@@ -166,6 +180,8 @@ handleXrayService() {
 
 handleSingBoxService() {
     local action="$1"
+    local maxWait=15
+    local waited=0
 
     case "${action}" in
         start)
@@ -176,16 +192,27 @@ handleSingBoxService() {
                 fi
 
                 serviceControl "sing-box" "start"
-                sleep 1
 
-                if isProcessRunning "sing-box"; then
-                    echoContent green " ---> sing-box启动成功"
-                else
-                    echoContent red "sing-box启动失败"
-                    echoContent yellow "请手动执行检查:"
-                    echoContent yellow "  /etc/Proxy-agent/sing-box/sing-box merge config.json -C /etc/Proxy-agent/sing-box/conf/config/ -D /etc/Proxy-agent/sing-box/conf/"
-                    return 1
+                # 动态等待而不是固定等待
+                while (( waited < maxWait )); do
+                    if isProcessRunning "sing-box"; then
+                        echoContent green " ---> sing-box启动成功"
+                        return 0
+                    fi
+                    sleep 0.5
+                    ((waited++))
+                done
+
+                # 启动失败，提供诊断信息
+                echoContent red "sing-box启动失败"
+                echoContent yellow "请手动执行检查:"
+                echoContent yellow "  /etc/Proxy-agent/sing-box/sing-box merge config.json -C /etc/Proxy-agent/sing-box/conf/config/ -D /etc/Proxy-agent/sing-box/conf/"
+                # 尝试读取错误日志
+                if [[ -f "/etc/Proxy-agent/sing-box/box.log" ]]; then
+                    echoContent yellow "最近错误日志:"
+                    tail -5 /etc/Proxy-agent/sing-box/box.log 2>/dev/null
                 fi
+                return 1
             fi
             ;;
         stop)

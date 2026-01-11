@@ -522,22 +522,123 @@ jsonMergeArrays() {
 }
 
 # ============================================================================
-# 清理函数
+# 清理和恢复函数
 # ============================================================================
 
 # 清理旧的备份文件
 # 参数: $1 - 目录路径
 #       $2 - 保留天数 (默认7)
+#       $3 - 最大保留数量 (默认10)
 jsonCleanupBackups() {
     local dir="$1"
     local days="${2:-7}"
+    local maxKeep="${3:-10}"
 
+    # 验证目录参数
+    if [[ -z "${dir}" || ! -d "${dir}" ]]; then
+        return 1
+    fi
+
+    # 按时间删除旧备份
     find "${dir}" -name "*.bak.*" -mtime +"${days}" -delete 2>/dev/null
+
+    # 限制每个文件的备份数量
+    local baseFiles
+    baseFiles=$(find "${dir}" -name "*.json" -type f 2>/dev/null)
+
+    while IFS= read -r baseFile; do
+        [[ -z "${baseFile}" ]] && continue
+        local backups
+        backups=$(ls -t "${baseFile}".bak.* 2>/dev/null | tail -n +$((maxKeep + 1)))
+        if [[ -n "${backups}" ]]; then
+            echo "${backups}" | xargs rm -f 2>/dev/null
+        fi
+    done <<< "${baseFiles}"
 }
 
 # 清理临时文件
 jsonCleanupTmp() {
     rm -f "${JSON_TMP_PREFIX}"_* 2>/dev/null
+}
+
+# 从备份恢复JSON文件
+# 参数: $1 - 原始文件路径
+#       $2 - 备份索引 (0=最新, 1=次新, 默认0)
+# 返回: 0=成功, 1=失败
+jsonRestoreFromBackup() {
+    local file="$1"
+    local index="${2:-0}"
+
+    # 验证参数
+    if [[ -z "${file}" ]]; then
+        return 1
+    fi
+
+    # 获取备份文件列表 (按时间倒序)
+    local backups
+    backups=$(ls -t "${file}".bak.* 2>/dev/null)
+
+    if [[ -z "${backups}" ]]; then
+        return 1  # 无备份文件
+    fi
+
+    # 选择指定索引的备份
+    local backupFile
+    backupFile=$(echo "${backups}" | sed -n "$((index + 1))p")
+
+    if [[ -z "${backupFile}" || ! -f "${backupFile}" ]]; then
+        return 1  # 备份文件不存在
+    fi
+
+    # 验证备份文件是有效的JSON
+    if ! jq -e . "${backupFile}" >/dev/null 2>&1; then
+        return 1  # 备份文件已损坏
+    fi
+
+    # 恢复
+    if cp "${backupFile}" "${file}" 2>/dev/null; then
+        return 0
+    fi
+
+    return 1
+}
+
+# 列出文件的所有备份
+# 参数: $1 - 原始文件路径
+# 输出: 备份文件列表 (每行一个，按时间倒序)
+jsonListBackups() {
+    local file="$1"
+
+    if [[ -z "${file}" ]]; then
+        return 1
+    fi
+
+    ls -t "${file}".bak.* 2>/dev/null
+}
+
+# 获取最新的有效备份
+# 参数: $1 - 原始文件路径
+# 输出: 备份文件路径
+jsonGetLatestValidBackup() {
+    local file="$1"
+
+    if [[ -z "${file}" ]]; then
+        return 1
+    fi
+
+    local backups
+    backups=$(ls -t "${file}".bak.* 2>/dev/null)
+
+    while IFS= read -r backup; do
+        [[ -z "${backup}" ]] && continue
+        # 验证是否为有效JSON
+        if jq -e . "${backup}" >/dev/null 2>&1; then
+            echo "${backup}"
+            return 0
+        fi
+    done <<< "${backups}"
+
+    return 1  # 无有效备份
 }
 
 # ============================================================================

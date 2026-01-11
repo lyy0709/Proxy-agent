@@ -218,15 +218,35 @@ jqAvailable() {
 
 # 检查端口是否被占用
 # 用法: if isPortInUse 443; then ...
+# 返回值: 0=端口被占用, 1=端口未被占用, 2=无法检测
 isPortInUse() {
     local port="$1"
+
+    # 验证端口号
+    if [[ -z "${port}" || ! "${port}" =~ ^[0-9]+$ ]]; then
+        return 2
+    fi
+
+    # 方法1: ss (优先)
     if command -v ss &>/dev/null; then
-        ss -tlnp 2>/dev/null | grep -q ":${port} "
-    elif command -v netstat &>/dev/null; then
-        netstat -tlnp 2>/dev/null | grep -q ":${port} "
-    else
+        ss -tlnp 2>/dev/null | grep -q ":${port} " && return 0
         return 1
     fi
+
+    # 方法2: netstat
+    if command -v netstat &>/dev/null; then
+        netstat -tlnp 2>/dev/null | grep -q ":${port} " && return 0
+        return 1
+    fi
+
+    # 方法3: lsof
+    if command -v lsof &>/dev/null; then
+        lsof -i "tcp:${port}" 2>/dev/null | grep -q LISTEN && return 0
+        return 1
+    fi
+
+    # 所有工具都不可用时返回 2（无法检测）
+    return 2
 }
 
 # 检查域名是否解析到本机IP
